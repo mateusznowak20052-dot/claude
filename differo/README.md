@@ -87,6 +87,9 @@ differo/
 
 ## Zakres prototypu
 
-6 ścieżek klinicznych (ból w klatce, ból brzucha, duszność, gorączka/sepsa, ból
-głowy, omdlenie), 100+ rozpoznawanych znalezisk, 6 interaktywnych skal. Strategia
-zgodna z praktyką: *najczęstsze + najgroźniejsze*, nie „cała medycyna”.
+11 ścieżek klinicznych (ból w klatce, ból brzucha, ból pleców, duszność,
+gorączka/sepsa, ból głowy, omdlenie, ogniskowe objawy neurologiczne/udar,
+krwawienie z przewodu pokarmowego, zawroty głowy, gorączka u dziecka), 130+
+rozpoznawanych znalezisk, 8 interaktywnych skal (HEART, Wells, CURB-65, Alvarado,
+qSOFA, NEWS2, ROSIER, Glasgow-Blatchford). Można generować **raport do druku/PDF**.
+Strategia zgodna z praktyką: *najczęstsze + najgroźniejsze*, nie „cała medycyna”.

@@ -57,7 +57,7 @@
     const ex = DFR.engine.extractFindings(text);
     const pres = guessPresentation(ex.present);
     if (!pres || ex.present.length === 0) {
-      out.innerHTML = '<div class="alert alert-info mt-3"><span>Nie rozpoznano wystarczająco objawów. Spróbuj jednego z przykładów — prototyp obejmuje 6 ścieżek.</span></div>';
+      out.innerHTML = '<div class="alert alert-info mt-3"><span>Nie rozpoznano wystarczająco objawów. Spróbuj jednego z przykładów — prototyp obejmuje 11 ścieżek klinicznych.</span></div>';
       return;
     }
     const res = DFR.engine.analyze({ presentationId: pres.id, findingIds: ex.present, context: 'SOR', corrections: {} });

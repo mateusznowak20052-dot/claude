@@ -660,6 +660,309 @@ DFR.data = (function () {
     },
   };
 
+  /* ------------------------------------------------------------------ */
+  /* 4) ROZSZERZENIE bazy: dodatkowe znaleziska, ścieżki i skale         */
+  /* ------------------------------------------------------------------ */
+  Object.assign(F, {
+    // ból pleców
+    back_pain:        { label: 'Ból pleców / krzyża', type: 'symptom', syn: ['bol plecow', 'ból pleców', 'ból krzyża', 'ból w krzyżu', 'bóle kręgosłupa', 'ból odcinka lędźwiowego'] },
+    radicular:        { label: 'Ból korzeniowy (promieniujący do nogi)', type: 'symptom', syn: ['rwa kulszowa', 'promieniuje do nogi', 'ból korzeniowy', 'drętwienie nogi', 'promieniujący wzdłuż nogi'] },
+    saddle_anesthesia:{ label: 'Niedoczulica krocza („siodełkowa”)', type: 'sign', syn: ['znieczulenie krocza', 'niedoczulica krocza', 'okolica siodełkowa', 'drętwienie krocza'] },
+    urinary_retention:{ label: 'Zatrzymanie moczu', type: 'symptom', syn: ['zatrzymanie moczu', 'nie może oddać moczu', 'retencja moczu'] },
+    fecal_incont:     { label: 'Nietrzymanie stolca', type: 'symptom', syn: ['nietrzymanie stolca', 'nietrzymanie kału'] },
+    bilateral_leg_weak:{ label: 'Obustronne osłabienie kończyn dolnych', type: 'sign', syn: ['osłabienie obu nóg', 'niedowład obu kończyn dolnych', 'osłabienie kończyn dolnych'] },
+    night_pain:       { label: 'Ból nocny / spoczynkowy', type: 'symptom', syn: ['ból nocny', 'budzi w nocy ból', 'ból w spoczynku', 'ból w nocy'] },
+    weight_loss:      { label: 'Niezamierzona utrata masy ciała', type: 'symptom', syn: ['utrata masy ciała', 'chudnięcie', 'spadek wagi', 'utrata wagi'] },
+    iv_drug:          { label: 'Dożylne przyjmowanie substancji', type: 'history', syn: ['narkotyki dożylne', 'przyjmuje narkotyki', 'iv drug', 'dożylnie narkotyki'] },
+    trauma:           { label: 'Uraz w wywiadzie', type: 'history', syn: ['uraz', 'po upadku', 'po urazie', 'wypadek', 'po uderzeniu'] },
+    thoracic_back:    { label: 'Ból międzyłopatkowy', type: 'symptom', syn: ['ból międzyłopatkowy', 'ból w okolicy międzyłopatkowej', 'ból w plecach na wysokości piersiowej'] },
+
+    // ogniskowe objawy neurologiczne / udar
+    facial_droop:     { label: 'Opadnięcie kącika ust / asymetria twarzy', type: 'sign', syn: ['opadnięcie kącika ust', 'asymetria twarzy', 'opadnięta twarz', 'wykrzywienie twarzy'] },
+    arm_weakness:     { label: 'Osłabienie / opadanie kończyny górnej', type: 'sign', syn: ['osłabienie ręki', 'niedowład ręki', 'opadanie ręki', 'opadanie ramienia'] },
+    speech_disturb:   { label: 'Zaburzenia mowy', type: 'sign', syn: ['zaburzenia mowy', 'bełkotliwa mowa', 'niewyraźna mowa', 'afazja', 'zaburzenia artykulacji'] },
+    sudden_neuro:     { label: 'Nagły początek objawów neurologicznych', type: 'symptom', syn: ['nagły początek', 'nagle wystąpił niedowład', 'nagłe zaburzenia neurologiczne'] },
+    hemianopia:       { label: 'Ubytek pola widzenia', type: 'sign', syn: ['niedowidzenie połowicze', 'ubytek pola widzenia', 'hemianopia'] },
+    ataxia:           { label: 'Ataksja / niezborność', type: 'sign', syn: ['ataksja', 'niezborność', 'chwiejny chód', 'zaburzenia koordynacji'] },
+
+    // zawroty głowy
+    vertigo_sym:      { label: 'Zawroty głowy', type: 'symptom', syn: ['zawroty głowy', 'zawroty', 'kręci się w głowie', 'uczucie wirowania'] },
+    positional_vertigo:{ label: 'Zawroty zależne od pozycji', type: 'symptom', syn: ['zawroty przy zmianie pozycji', 'zawroty przy obracaniu głowy', 'pozycyjne zawroty', 'przy kładzeniu się'] },
+    rotatory_vertigo: { label: 'Zawroty wirowe', type: 'symptom', syn: ['wirujące zawroty', 'zawroty wirowe', 'wszystko wiruje'] },
+    hearing_loss:     { label: 'Niedosłuch / utrata słuchu', type: 'symptom', syn: ['niedosłuch', 'utrata słuchu', 'pogorszenie słuchu', 'gorzej słyszy'] },
+    tinnitus:         { label: 'Szum w uszach', type: 'symptom', syn: ['szum w uszach', 'dzwonienie w uszach', 'tinnitus'] },
+    nystagmus:        { label: 'Oczopląs', type: 'sign', syn: ['oczopląs', 'nystagmus'] },
+    gait_instability: { label: 'Niestabilność chodu', type: 'sign', syn: ['niestabilny chód', 'zaburzenia chodu', 'chwieje się', 'nie może chodzić'] },
+
+    // krwawienie z przewodu pokarmowego
+    hematemesis:      { label: 'Wymioty krwią', type: 'symptom', syn: ['wymioty krwią', 'krwawe wymioty', 'wymiotował krwią', 'wymioty z krwią'] },
+    coffee_ground:    { label: 'Wymioty fusowate', type: 'symptom', syn: ['fusowate wymioty', 'wymioty fusowate', 'treść fusowata'] },
+    alcohol_use:      { label: 'Nadużywanie alkoholu', type: 'history', syn: ['nadużywa alkoholu', 'alkoholizm', 'nadużycie alkoholu', 'pije alkohol'] },
+    liver_disease:    { label: 'Choroba wątroby / marskość', type: 'history', syn: ['marskość', 'choroba wątroby', 'marskość wątroby', 'nadciśnienie wrotne'] },
+    nsaid_use:        { label: 'Przyjmowanie NLPZ', type: 'history', syn: ['nlpz', 'niesteroidowe', 'ibuprofen', 'diklofenak', 'ketoprofen'] },
+
+    // pediatria gorączkowa
+    ear_pain:         { label: 'Ból ucha', type: 'symptom', syn: ['ból ucha', 'boli ucho', 'pociąga się za ucho'] },
+    poor_feeding:     { label: 'Słabe karmienie / odmowa jedzenia', type: 'symptom', syn: ['nie chce jeść', 'słabo je', 'odmawia jedzenia', 'słabe ssanie', 'nie chce pić'] },
+    irritability:     { label: 'Rozdrażnienie / płaczliwość', type: 'symptom', syn: ['rozdrażnienie', 'płaczliwość', 'marudny', 'rozdrażniony', 'rozdrażnione dziecko'] },
+    bulging_font:     { label: 'Uwypuklone / napięte ciemiączko', type: 'sign', syn: ['uwypuklone ciemiączko', 'napięte ciemiączko', 'tętniące ciemiączko'] },
+    lethargy:         { label: 'Apatia / nadmierna senność', type: 'sign', syn: ['apatyczne', 'nadmierna senność', 'trudno dobudzić', 'letarg', 'apatia'] },
+  });
+
+  presentations.push(
+    /* ===================== BÓL PLECÓW ============================== */
+    {
+      id: 'back_pain', label: 'Ból pleców / krzyża', icon: 'activity',
+      contexts: ['SOR', 'POZ', 'Ortopedia', 'Neurologia'],
+      suggestedScores: [],
+      redFlags: [
+        { test: s => s.has('saddle_anesthesia') || s.has('urinary_retention') || s.has('fecal_incont') || s.has('bilateral_leg_weak'), label: 'Objawy zespołu ogona końskiego', action: 'Pilne MR i konsultacja neurochirurgiczna — okno do dekompresji jest wąskie.' },
+        { test: s => s.has('thoracic_back') && (s.has('age_ge_65') || s.has('htn')) || s.has('pulsatile_mass') || s.has('cp_tearing'), label: 'Ból pleców o możliwej przyczynie naczyniowej', action: 'Rozważ rozwarstwienie aorty / AAA — angio-TK, RR na obu kończynach.' },
+        { test: s => s.has('fever') && (s.has('iv_drug') || s.has('immunosupp')), label: 'Gorączka + czynnik ryzyka infekcji', action: 'Podejrzenie infekcji kręgosłupa/ropnia nadtwardówkowego — MR, posiewy, OB/CRP.' },
+        { test: s => s.has('weight_loss') && s.has('age_ge_50'), label: 'Utrata masy ciała + wiek ≥ 50', action: 'Wyklucz proces nowotworowy/przerzuty — obrazowanie, badania w kierunku ogniska.' },
+      ],
+      diagnoses: [
+        { id: 'mechanical_back', name: 'Niespecyficzny ból pleców (mechaniczny)', icd: 'M54',
+          prior: { SOR: 0.40, POZ: 0.60, Ortopedia: 0.45, Neurologia: 0.30 },
+          lr: { back_pain: 1.4, age_lt_40: 1.3, night_pain: 0.6, weight_loss: 0.4, fever: 0.4 },
+          tests: ['Rozpoznanie kliniczne (bez „flag” obrazowanie zbędne)', 'Ocena czerwonych flag'],
+          management: ['Utrzymanie aktywności', 'Leki przeciwbólowe (NLPZ/paracetamol)', 'Edukacja'], sources: ['NICE low back pain (NG59)'] },
+        { id: 'radiculopathy', name: 'Radikulopatia / dyskopatia', icd: 'M51',
+          prior: { SOR: 0.18, POZ: 0.18, Ortopedia: 0.25, Neurologia: 0.30 },
+          lr: { radicular: 4.0, back_pain: 1.2, bilateral_leg_weak: 1.3 },
+          tests: ['Badanie neurologiczne (objaw Laségue’a)', 'MR przy deficycie/oporności na leczenie'],
+          management: ['Leczenie zachowawcze', 'Rehabilitacja', 'Konsultacja przy deficycie'], sources: ['NASS guidelines'] },
+        { id: 'cauda_equina', name: 'Zespół ogona końskiego', icd: 'G83.4', cantMiss: true,
+          prior: { SOR: 0.02, POZ: 0.005, Ortopedia: 0.02, Neurologia: 0.03 },
+          lr: { saddle_anesthesia: 8.0, urinary_retention: 5.0, fecal_incont: 4.0, bilateral_leg_weak: 3.0, radicular: 1.5 },
+          tests: ['Pilne MR kręgosłupa', 'Ocena czucia w okolicy krocza i napięcia zwieracza'],
+          management: ['Natychmiastowa konsultacja neurochirurgiczna', 'Dekompresja operacyjna'], sources: ['British Association of Spine Surgeons'] },
+        { id: 'vertebral_fracture', name: 'Złamanie kręgu', icd: 'S22/S32',
+          prior: { SOR: 0.10, POZ: 0.04, Ortopedia: 0.12, Neurologia: 0.05 },
+          lr: { trauma: 3.0, age_ge_65: 1.8, night_pain: 1.2 },
+          tests: ['RTG / TK kręgosłupa', 'Ocena w kierunku osteoporozy'],
+          management: ['Leczenie bólu', 'Ocena stabilności, konsultacja ortopedyczna'], sources: ['ESCEO osteoporosis'] },
+        { id: 'spinal_infection', name: 'Infekcja kręgosłupa / ropień nadtwardówkowy', icd: 'M46', cantMiss: true,
+          prior: { SOR: 0.02, POZ: 0.003, Ortopedia: 0.02, Neurologia: 0.03 },
+          lr: { fever: 3.0, iv_drug: 4.0, immunosupp: 2.5, night_pain: 1.6, back_pain: 1.1 },
+          tests: ['MR z kontrastem', 'Posiewy krwi', 'OB, CRP, morfologia'],
+          management: ['Antybiotykoterapia celowana', 'Konsultacja neurochirurgiczna'], sources: ['IDSA native vertebral osteomyelitis'] },
+        { id: 'spinal_malignancy', name: 'Nowotwór / przerzuty do kręgosłupa', icd: 'C79.5', cantMiss: true,
+          prior: { SOR: 0.02, POZ: 0.01, Ortopedia: 0.03, Neurologia: 0.04 },
+          lr: { weight_loss: 3.0, cancer: 4.0, night_pain: 2.0, age_ge_50: 1.6, back_pain: 1.1 },
+          tests: ['MR kręgosłupa', 'Badania w kierunku ogniska pierwotnego'],
+          management: ['Konsultacja onkologiczna', 'Ocena ucisku rdzenia (stan nagły)'], sources: ['NICE metastatic spinal cord compression'] },
+      ],
+    },
+
+    /* ============ OGNISKOWE OBJAWY NEUROLOGICZNE / UDAR ============ */
+    {
+      id: 'neuro_focal', label: 'Ogniskowe objawy neurologiczne / udar', icon: 'brain',
+      contexts: ['SOR', 'Neurologia', 'POZ'],
+      suggestedScores: ['ROSIER'],
+      redFlags: [
+        { test: s => s.has('facial_droop') || s.has('arm_weakness') || s.has('speech_disturb'), label: 'Dodatnie objawy FAST', action: 'Aktywuj ścieżkę udarową: pilne TK głowy, oznacz czas wystąpienia (okno trombolizy/trombektomii).' },
+        { test: s => s.has('thunderclap'), label: 'Ból piorunujący z objawami neurologicznymi', action: 'Wyklucz krwotok podpajęczynówkowy — pilna TK, ew. PL.' },
+        { test: s => s.has('altered_mental'), label: 'Zaburzenia świadomości', action: 'Zabezpiecz drożność dróg oddechowych, glikemia, pilne obrazowanie.' },
+      ],
+      diagnoses: [
+        { id: 'ischemic_stroke', name: 'Udar niedokrwienny', icd: 'I63', cantMiss: true,
+          prior: { SOR: 0.30, Neurologia: 0.35, POZ: 0.10 },
+          lr: { facial_droop: 3.0, arm_weakness: 3.0, speech_disturb: 2.6, sudden_neuro: 2.5, hemianopia: 2.0, age_ge_65: 1.8, htn: 1.5, prior_cad: 1.4, age_lt_40: 0.5 },
+          tests: ['Pilne TK głowy (wyklucz krwotok)', 'Glikemia', 'NIHSS', 'Angio-TK przy kwalifikacji do trombektomii'],
+          management: ['Tromboliza w oknie czasowym wg kwalifikacji', 'Trombektomia przy LVO', 'Oddział udarowy'], sources: ['ESO/AHA stroke guidelines'] },
+        { id: 'hemorrhagic_stroke', name: 'Udar krwotoczny', icd: 'I61', cantMiss: true,
+          prior: { SOR: 0.10, Neurologia: 0.12, POZ: 0.03 },
+          lr: { sudden_neuro: 2.0, headache: 1.8, altered_mental: 2.0, htn_severe: 2.5, anticoag: 2.0, facial_droop: 1.5 },
+          tests: ['Pilne TK głowy', 'Koagulogram, odwrócenie antykoagulacji'],
+          management: ['Kontrola ciśnienia', 'Konsultacja neurochirurgiczna', 'Odwrócenie leków przeciwkrzepliwych'], sources: ['AHA ICH guidelines'] },
+        { id: 'tia', name: 'Przemijające niedokrwienie (TIA)', icd: 'G45',
+          prior: { SOR: 0.15, Neurologia: 0.18, POZ: 0.10 },
+          lr: { sudden_neuro: 1.6, facial_droop: 1.4, speech_disturb: 1.4, age_ge_65: 1.5 },
+          tests: ['Pilna ocena (ABCD²)', 'Obrazowanie naczyń, echo, EKG'],
+          management: ['Profilaktyka wtórna (przeciwpłytkowo/antykoagulacja)', 'Pilna diagnostyka'], sources: ['NICE TIA'] },
+        { id: 'hypoglycemia_neuro', name: 'Hipoglikemia (naśladuje udar)', icd: 'E16',
+          prior: { SOR: 0.06, Neurologia: 0.04, POZ: 0.05 },
+          lr: { diabetes: 4.0, diaphoresis: 1.8, altered_mental: 1.5, sudden_neuro: 1.2 },
+          tests: ['Natychmiastowy pomiar glikemii'],
+          management: ['Podaż glukozy — zawsze sprawdź przed rozpoznaniem udaru'], sources: ['ADA standards'] },
+        { id: 'migraine_aura', name: 'Migrena z aurą (naśladuje udar)', icd: 'G43.1',
+          prior: { SOR: 0.07, Neurologia: 0.10, POZ: 0.10 },
+          lr: { aura: 4.0, headache: 1.8, age_lt_40: 1.6, sudden_neuro: 0.6, facial_droop: 0.4 },
+          tests: ['Rozpoznanie kliniczne po wykluczeniu udaru'],
+          management: ['Leczenie migreny', 'Obserwacja'], sources: ['ICHD-3'] },
+        { id: 'bells_palsy', name: 'Porażenie nerwu twarzowego (obwodowe)', icd: 'G51.0',
+          prior: { SOR: 0.05, Neurologia: 0.08, POZ: 0.08 },
+          lr: { facial_droop: 1.5, arm_weakness: 0.2, speech_disturb: 0.4 },
+          tests: ['Różnicowanie ośrodkowe vs obwodowe (czoło!)'],
+          management: ['Glikokortykosteroid wcześnie', 'Ochrona rogówki'], sources: ['AAN Bell’s palsy'] },
+        { id: 'brain_tumor_neuro', name: 'Guz OUN', icd: 'C71', cantMiss: true,
+          prior: { SOR: 0.02, Neurologia: 0.06, POZ: 0.02 },
+          lr: { worse_valsalva: 2.5, headache: 1.4, sudden_neuro: 0.5, weight_loss: 1.4, hemianopia: 1.6 },
+          tests: ['MR głowy', 'TK przy braku dostępu'],
+          management: ['Konsultacja neurologiczna/neurochirurgiczna'], sources: ['NICE brain tumour'] },
+      ],
+    },
+
+    /* ============ KRWAWIENIE Z PRZEWODU POKARMOWEGO =============== */
+    {
+      id: 'gi_bleed', label: 'Krwawienie z przewodu pokarmowego', icon: 'activity',
+      contexts: ['SOR', 'Interna', 'Chirurgia'],
+      suggestedScores: ['GBS'],
+      redFlags: [
+        { test: s => s.has('hypotension') || s.has('hypotension_severe') || s.has('tachycardia') || s.has('syncope'), label: 'Cechy niestabilności hemodynamicznej', action: 'Resuscytacja płynowa, grupa i krzyżówka, pilna endoskopia; rozważ masywne krwawienie.' },
+        { test: s => s.has('hematemesis') && s.has('liver_disease'), label: 'Krwawe wymioty + choroba wątroby', action: 'Podejrzenie żylaków przełyku — wlew leku wazoaktywnego, antybiotyk, pilna endoskopia.' },
+      ],
+      diagnoses: [
+        { id: 'peptic_ulcer', name: 'Choroba wrzodowa (krwawiąca)', icd: 'K25–K27',
+          prior: { SOR: 0.30, Interna: 0.32, Chirurgia: 0.25 },
+          lr: { melena: 3.0, hematemesis: 2.5, coffee_ground: 2.2, epigastric: 1.8, nsaid_use: 2.2, age_ge_65: 1.4 },
+          tests: ['Pilna gastroskopia', 'Morfologia, grupa krwi', 'Mocznik (podwyższony)'],
+          management: ['IPP i.v.', 'Endoskopowa hemostaza', 'Eradykacja H. pylori'], sources: ['ESGE upper GI bleeding'] },
+        { id: 'variceal', name: 'Krwawienie z żylaków przełyku', icd: 'I85.0', cantMiss: true,
+          prior: { SOR: 0.10, Interna: 0.14, Chirurgia: 0.08 },
+          lr: { hematemesis: 2.5, liver_disease: 5.0, alcohol_use: 2.5, melena: 1.6, hypotension: 1.8 },
+          tests: ['Pilna endoskopia', 'Próby wątrobowe, koagulogram'],
+          management: ['Lek wazoaktywny (terlipresyna)', 'Antybiotyk profilaktycznie', 'Opaskowanie endoskopowe'], sources: ['Baveno VII'] },
+        { id: 'mallory_weiss', name: 'Zespół Mallory’ego-Weissa', icd: 'K22.6',
+          prior: { SOR: 0.08, Interna: 0.07, Chirurgia: 0.06 },
+          lr: { hematemesis: 2.0, nausea_vom: 2.0, alcohol_use: 1.6 },
+          tests: ['Gastroskopia'],
+          management: ['Zwykle ustępuje samoistnie', 'Hemostaza endoskopowa przy aktywnym krwawieniu'], sources: ['ASGE'] },
+        { id: 'gi_malignancy', name: 'Nowotwór przewodu pokarmowego', icd: 'C16/C18', cantMiss: true,
+          prior: { SOR: 0.05, Interna: 0.08, Chirurgia: 0.10 },
+          lr: { weight_loss: 3.0, age_ge_65: 1.8, melena: 1.6, cancer: 2.0, hematochezia: 1.4 },
+          tests: ['Endoskopia z biopsją', 'Obrazowanie (TK)'],
+          management: ['Konsultacja onkologiczna/chirurgiczna'], sources: ['ESMO GI cancers'] },
+        { id: 'diverticular_bleed', name: 'Krwawienie z uchyłków', icd: 'K57.3',
+          prior: { SOR: 0.10, Interna: 0.10, Chirurgia: 0.12 },
+          lr: { hematochezia: 3.0, age_ge_65: 1.8, llq_pain: 1.2, hematemesis: 0.2 },
+          tests: ['Kolonoskopia', 'Angio-TK przy obfitym krwawieniu'],
+          management: ['Najczęściej samoograniczające', 'Hemostaza endoskopowa/embolizacja'], sources: ['ACG lower GI bleeding'] },
+        { id: 'anorectal_bleed', name: 'Przyczyna odbytowo-odbytnicza (hemoroidy)', icd: 'K64',
+          prior: { SOR: 0.12, Interna: 0.10, Chirurgia: 0.18 },
+          lr: { hematochezia: 2.0, age_lt_40: 1.4, melena: 0.2, weight_loss: 0.4 },
+          tests: ['Badanie per rectum, anoskopia', 'Wyklucz przyczyny proksymalne'],
+          management: ['Leczenie zachowawcze', 'Zabiegi przy nawrotach'], sources: ['ASCRS hemorrhoids'] },
+      ],
+    },
+
+    /* ===================== ZAWROTY GŁOWY ========================== */
+    {
+      id: 'vertigo', label: 'Zawroty głowy', icon: 'brain',
+      contexts: ['SOR', 'POZ', 'Neurologia', 'Laryngologia'],
+      suggestedScores: [],
+      redFlags: [
+        { test: s => s.has('focal_neuro') || s.has('ataxia') || s.has('hemianopia') || s.has('speech_disturb') || s.has('facial_droop'), label: 'Zawroty z objawami ośrodkowymi', action: 'Podejrzenie udaru pnia/móżdżku — pilne obrazowanie (najlepiej MR/DWI), ocena HINTS przez doświadczonego badającego.' },
+        { test: s => s.has('sudden_neuro') && s.has('headache'), label: 'Nagłe zawroty z bólem głowy/karku', action: 'Rozważ rozwarstwienie tętnicy kręgowej / udar móżdżku — obrazowanie naczyniowe.' },
+      ],
+      diagnoses: [
+        { id: 'bppv', name: 'Łagodne położeniowe zawroty głowy (BPPV)', icd: 'H81.1',
+          prior: { SOR: 0.30, POZ: 0.40, Neurologia: 0.25, Laryngologia: 0.45 },
+          lr: { positional_vertigo: 4.0, rotatory_vertigo: 1.6, nausea_vom: 1.2, focal_neuro: 0.2, ataxia: 0.3 },
+          tests: ['Manewr Dix-Hallpike’a', 'Badanie neurologiczne (prawidłowe)'],
+          management: ['Manewr repozycyjny (Epleya)', 'Edukacja'], sources: ['AAO-HNS BPPV'] },
+        { id: 'vestibular_neuritis', name: 'Zapalenie nerwu przedsionkowego', icd: 'H81.2',
+          prior: { SOR: 0.18, POZ: 0.15, Neurologia: 0.18, Laryngologia: 0.20 },
+          lr: { rotatory_vertigo: 2.4, nausea_vom: 1.8, nystagmus: 2.0, gait_instability: 1.6, hearing_loss: 0.5, focal_neuro: 0.2 },
+          tests: ['HINTS (obwodowy wzorzec)', 'Badanie neurologiczne'],
+          management: ['Leczenie objawowe (krótko)', 'Wczesna rehabilitacja przedsionkowa'], sources: ['Barany Society'] },
+        { id: 'meniere', name: 'Choroba Ménière’a', icd: 'H81.0',
+          prior: { SOR: 0.06, POZ: 0.08, Neurologia: 0.08, Laryngologia: 0.18 },
+          lr: { hearing_loss: 3.0, tinnitus: 3.0, rotatory_vertigo: 1.8 },
+          tests: ['Audiometria', 'Rozpoznanie kliniczne'],
+          management: ['Dieta niskosodowa, diuretyk', 'Leczenie napadu'], sources: ['AAO-HNS Ménière'] },
+        { id: 'central_vertigo', name: 'Zawroty ośrodkowe (udar pnia/móżdżku)', icd: 'I63', cantMiss: true,
+          prior: { SOR: 0.10, POZ: 0.02, Neurologia: 0.15, Laryngologia: 0.04 },
+          lr: { focal_neuro: 5.0, ataxia: 4.0, hemianopia: 3.0, sudden_neuro: 2.0, age_ge_65: 1.8, gait_instability: 1.6, positional_vertigo: 0.4 },
+          tests: ['MR-DWI (TK często ujemne)', 'Ocena naczyniowa', 'HINTS „centralny”'],
+          management: ['Ścieżka udarowa', 'Oddział udarowy/neurologia'], sources: ['ESO; HINTS (Kattah)'] },
+        { id: 'orthostatic_vertigo', name: 'Zawroty w hipotonii ortostatycznej', icd: 'I95.1',
+          prior: { SOR: 0.12, POZ: 0.15, Neurologia: 0.08, Laryngologia: 0.05 },
+          lr: { postural: 3.0, age_ge_65: 1.5, rotatory_vertigo: 0.5 },
+          tests: ['RR leżąc/stojąc', 'Przegląd leków'],
+          management: ['Nawodnienie, modyfikacja leków'], sources: ['ESC syncope 2018'] },
+      ],
+    },
+
+    /* ============ GORĄCZKA U DZIECKA (PEDIATRIA) ================== */
+    {
+      id: 'febrile_child', label: 'Gorączka u dziecka', icon: 'thermometer',
+      contexts: ['Pediatria', 'POZ', 'SOR'],
+      suggestedScores: ['NEWS2'],
+      redFlags: [
+        { test: s => s.has('petechiae'), label: 'Wysypka krwotoczna / wybroczyny', action: 'Podejrzenie sepsy meningokokowej — antybiotyk natychmiast, nie czekaj na badania.' },
+        { test: s => s.has('neck_stiff') || s.has('bulging_font'), label: 'Sztywność karku / uwypuklone ciemiączko', action: 'Podejrzenie zapalenia opon — posiewy, antybiotyk empiryczny, rozważ PL.' },
+        { test: s => s.has('lethargy') || s.has('altered_mental') || s.has('poor_feeding'), label: 'Apatia / słabe karmienie (objawy alarmowe „traffic light”)', action: 'Pilna ocena ciężkiego zakażenia; rozważ pakiet sepsy.' },
+        { test: s => s.has('hypotension') || s.has('tachypnea'), label: 'Niestabilne parametry', action: 'Ocena wstrząsu, dostęp, płynoterapia.' },
+      ],
+      diagnoses: [
+        { id: 'viral_uri', name: 'Zakażenie wirusowe górnych dróg oddechowych', icd: 'J06',
+          prior: { Pediatria: 0.45, POZ: 0.55, SOR: 0.35 },
+          lr: { cough: 1.4, sore_throat: 1.6, irritability: 1.1, petechiae: 0.3, lethargy: 0.4, neck_stiff: 0.3 },
+          tests: ['Zwykle kliniczne', 'Ocena objawów alarmowych'],
+          management: ['Leczenie objawowe', 'Nawodnienie', 'Edukacja opiekunów (kiedy wrócić)'], sources: ['NICE fever under 5 (NG143)'] },
+        { id: 'otitis_media', name: 'Ostre zapalenie ucha środkowego', icd: 'H66',
+          prior: { Pediatria: 0.18, POZ: 0.18, SOR: 0.12 },
+          lr: { ear_pain: 5.0, irritability: 1.4, fever: 1.2 },
+          tests: ['Otoskopia'],
+          management: ['Leczenie przeciwbólowe', 'Antybiotyk wg wieku/wskazań (strategia czujnego wyczekiwania)'], sources: ['AAP AOM'] },
+        { id: 'pneumonia_peds', name: 'Zapalenie płuc', icd: 'J18',
+          prior: { Pediatria: 0.12, POZ: 0.08, SOR: 0.14 },
+          lr: { tachypnea: 3.0, cough: 1.6, crackles: 2.2, dyspnea: 1.8, productive_cough: 1.6 },
+          tests: ['Ocena tachypnoë i wysiłku oddechowego', 'RTG przy wątpliwościach', 'SpO₂'],
+          management: ['Antybiotykoterapia wg wieku', 'Tlen przy hipoksemii'], sources: ['BTS/PIDS pediatric CAP'] },
+        { id: 'uti_peds', name: 'Zakażenie układu moczowego', icd: 'N39',
+          prior: { Pediatria: 0.10, POZ: 0.08, SOR: 0.08 },
+          lr: { dysuria: 2.6, irritability: 1.2, poor_feeding: 1.3, fever: 1.2 },
+          tests: ['Badanie ogólne moczu + posiew (prawidłowe pobranie!)'],
+          management: ['Antybiotykoterapia', 'Rozważ diagnostykę obrazową wg wieku'], sources: ['NICE UTI in under 16s'] },
+        { id: 'meningitis_peds', name: 'Zapalenie opon mózgowo-rdzeniowych', icd: 'G00–G03', cantMiss: true,
+          prior: { Pediatria: 0.04, POZ: 0.005, SOR: 0.04 },
+          lr: { neck_stiff: 5.0, bulging_font: 4.0, petechiae: 4.0, lethargy: 2.5, altered_mental: 2.5, photophobia: 2.0 },
+          tests: ['Posiewy', 'Punkcja lędźwiowa', 'Glikemia, morfologia, CRP'],
+          management: ['Antybiotyk empiryczny natychmiast ± deksametazon'], sources: ['NICE meningitis'] },
+        { id: 'sepsis_peds', name: 'Sepsa u dziecka', icd: 'A41', cantMiss: true,
+          prior: { Pediatria: 0.05, POZ: 0.01, SOR: 0.07 },
+          lr: { lethargy: 3.0, poor_feeding: 2.0, tachypnea: 2.0, petechiae: 3.0, hypotension: 3.0, altered_mental: 2.5 },
+          tests: ['Pakiet sepsy pediatrycznej', 'Mleczany, posiewy', 'Glikemia'],
+          management: ['Antybiotyk empiryczny ≤1 h', 'Płynoterapia bolusami', 'Pilna ocena specjalistyczna'], sources: ['Surviving Sepsis (pediatric)'] },
+      ],
+    }
+  );
+
+  Object.assign(scores, {
+    ROSIER: {
+      name: 'ROSIER', subtitle: 'Rozpoznawanie udaru na SOR',
+      items: [
+        { id: 'loc', label: 'Utrata przytomności / omdlenie', options: [['Nie', 0], ['Tak', -1]] },
+        { id: 'sez', label: 'Drgawki', options: [['Nie', 0], ['Tak', -1]] },
+        { id: 'face', label: 'Asymetria twarzy', options: [['Nie', 0], ['Tak', 1]] },
+        { id: 'arm', label: 'Osłabienie kończyny górnej', options: [['Nie', 0], ['Tak', 1]] },
+        { id: 'leg', label: 'Osłabienie kończyny dolnej', options: [['Nie', 0], ['Tak', 1]] },
+        { id: 'speech', label: 'Zaburzenia mowy', options: [['Nie', 0], ['Tak', 1]] },
+        { id: 'visual', label: 'Ubytek pola widzenia', options: [['Nie', 0], ['Tak', 1]] },
+      ],
+      interpret: t => t > 0
+        ? { band: 'crit', text: `> 0 pkt: udar prawdopodobny — aktywuj ścieżkę udarową, pilne TK.` }
+        : { band: 'warn', text: `≤ 0 pkt: udar mało prawdopodobny, ale nie wykluczony — oceń klinicznie i rozważ mimiki.` },
+    },
+    GBS: {
+      name: 'Glasgow-Blatchford (uproszczony)', subtitle: 'Ryzyko w krwawieniu z górnego GI',
+      items: [
+        { id: 'urea', label: 'Mocznik (mmol/l)', options: [['< 6,5', 0], ['6,5–10', 2], ['10–25', 4], ['> 25', 6]] },
+        { id: 'hb', label: 'Hemoglobina', options: [['prawidłowa', 0], ['łagodnie obniżona', 3], ['znacznie obniżona', 6]] },
+        { id: 'sbp', label: 'RR skurczowe', options: [['≥ 110', 0], ['100–109', 1], ['90–99', 2], ['< 90', 3]] },
+        { id: 'other', label: 'Tętno ≥100 / melena / omdlenie / choroba wątroby / niewyd. serca', options: [['brak', 0], ['1 czynnik', 1], ['≥ 2 czynniki', 2]] },
+      ],
+      interpret: t => t === 0
+        ? { band: 'low', text: `0 pkt: bardzo niskie ryzyko — rozważ postępowanie ambulatoryjne.` }
+        : t <= 3
+        ? { band: 'warn', text: `1–3 pkt: niskie/pośrednie ryzyko — obserwacja, planowa endoskopia.` }
+        : { band: 'crit', text: `≥ 4 pkt: podwyższone ryzyko — hospitalizacja, pilna endoskopia.` },
+    },
+  });
+
   /* expose */
   return { findings: F, presentations, scores };
 })();

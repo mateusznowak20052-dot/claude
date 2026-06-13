@@ -94,6 +94,33 @@
   }
   function initials(name) { return (name || 'Dr').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(); }
 
+  /* ---- eksport raportu do druku / PDF (bez bibliotek) ---- */
+  function printReport(d) {
+    const w = window.open('', '_blank');
+    if (!w) { toast('Zezwól na wyskakujące okna, aby wyeksportować raport.', 'warn'); return; }
+    const css = `*{box-sizing:border-box;margin:0}body{font:14px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#131A24;padding:40px;max-width:820px;margin:0 auto}
+      h1{font:600 26px Georgia,serif;margin-bottom:4px}h2{font:600 15px sans-serif;text-transform:uppercase;letter-spacing:.05em;color:#0E7C86;margin:24px 0 8px;border-bottom:1px solid #E2E8F0;padding-bottom:4px}
+      .meta{color:#6B7686;font-size:13px;margin-bottom:20px}.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EEF2F7}
+      .pct{font-weight:700;font-variant-numeric:tabular-nums}.cm{color:#C0362C}.tag{display:inline-block;background:#EEF2F7;border:1px solid #E2E8F0;border-radius:20px;padding:2px 10px;margin:0 4px 4px 0;font-size:12px}
+      .rf{background:#FBEAE8;border:1px solid #F0C7C2;color:#C0362C;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px}
+      .disc{margin-top:30px;background:#FBF1E1;border:1px solid #EDD7AE;color:#8a5a00;border-radius:8px;padding:12px 14px;font-size:12px}
+      .box{background:#F6F8FB;border:1px solid #E2E8F0;border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap}
+      @media print{body{padding:0}}`;
+    const html = `<!doctype html><html lang="pl"><head><meta charset="utf-8"><title>Raport Differo — ${esc(d.title)}</title><style>${css}</style></head><body>
+      <h1>Differo — raport różnicowania</h1>
+      <div class="meta">${esc(d.title)} · kontekst: ${esc(d.context)} · ${esc(d.when)}${d.clinician ? ' · ' + esc(d.clinician) : ''}
+      ${d.demo ? '<br>' + esc(d.demo) : ''}</div>
+      ${d.findings && d.findings.length ? `<h2>Rozpoznane znaleziska</h2><div>${d.findings.map(f => `<span class="tag">${esc(f)}</span>`).join('')}</div>` : ''}
+      ${d.redFlags && d.redFlags.length ? `<h2>Czerwone flagi</h2>${d.redFlags.map(f => `<div class="rf">⚑ ${esc(f)}</div>`).join('')}` : ''}
+      <h2>Diagnostyka różnicowa (udział względny)</h2>
+      ${d.differential.map(x => `<div class="row"><span class="${x.cantMiss ? 'cm' : ''}">${x.cantMiss ? '⚠ ' : ''}${esc(x.name)}</span><span class="pct">${x.share}%</span></div>`).join('')}
+      ${d.tests && d.tests.length ? `<h2>Zalecana diagnostyka wstępna</h2><div>${d.tests.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}
+      ${d.inputText ? `<h2>Opis przypadku</h2><div class="box">${esc(d.inputText)}</div>` : ''}
+      <div class="disc"><b>Zastrzeżenie:</b> Differo to prototyp edukacyjny, nie wyrób medyczny. Przedstawione wartości to względny udział w obrębie różnicowania, a nie kalibrowane prawdopodobieństwo kliniczne. Raport nie stanowi rozpoznania — odpowiedzialność za decyzję ponosi profesjonalista medyczny. Nie zawiera danych identyfikujących pacjenta.</div>
+      <script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>`;
+    w.document.write(html); w.document.close();
+  }
+
   /* =================================================================== */
   /*  LOGOWANIE                                                           */
   /* =================================================================== */
@@ -407,8 +434,9 @@
         <div class="flex items-center justify-between wrap gap-3 mb-4">
           <div><span class="badge badge-accent">${svg(presIcon(res.presentation.id), 14)} ${res.presentation.label}</span>
             <span class="badge" style="margin-left:6px">kontekst: ${esc(res.context)}</span></div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 wrap">
             <button class="btn btn-ghost btn-sm" id="btnSave">${svg(I.save, 15)} Zapisz</button>
+            <button class="btn btn-ghost btn-sm" id="btnExport">${svg(I.download, 15)} Raport</button>
             <button class="btn btn-ghost btn-sm" id="btnFeedback">${svg(I.flag, 15)} Zgłoś poprawkę</button>
           </div>
         </div>
@@ -463,6 +491,15 @@
     addSel.addEventListener('change', () => { if (addSel.value) { formFindings.push(addSel.value); reRun(); } });
 
     document.getElementById('btnSave').addEventListener('click', saveCurrent);
+    document.getElementById('btnExport').addEventListener('click', () => printReport({
+      title: res.presentation.label, context: res.context, when: fmtDate(new Date().toISOString()),
+      clinician: (profile && profile.name) || '',
+      demo: [lastInput.demographics.age ? lastInput.demographics.age + ' lat' : '', lastInput.demographics.sex === 'M' ? 'mężczyzna' : lastInput.demographics.sex === 'K' ? 'kobieta' : '', 'czas: ' + lastInput.demographics.dur].filter(Boolean).join(', '),
+      findings: formFindings.map(f => (D.findings[f] || {}).label || f),
+      redFlags: res.redFlags.map(f => f.label),
+      differential: res.results.map(r => ({ name: r.dx.name, share: Math.round(r.share), cantMiss: !!r.dx.cantMiss })),
+      tests: res.tests, inputText: lastInput.text,
+    }));
     document.getElementById('btnFeedback').addEventListener('click', () => openFeedback(res.presentation.id, res.results[0].dx.id));
     document.getElementById('resCard').scrollIntoView({ behavior: prefs.reducedMotion ? 'auto' : 'smooth', block: 'start' });
   }
@@ -703,23 +740,8 @@
       const reason = document.getElementById('fbReason').value.trim();
       if (reason.length < 12) { toast('Dodaj merytoryczne uzasadnienie (min. kilkanaście znaków).', 'warn'); return; }
       const presId = presSel.value, dxId = dxSel.value, dir = document.getElementById('fbDir').value;
-      // prosta „weryfikacja”: jakość uzasadnienia
-      const quality = scoreReason(reason);
-      const accepted = quality >= 2;
-      const rec = { id: 'f' + Date.now(), date: new Date().toISOString(), presId, dxId, dir, reason,
-        dxName: E.getPresentation(presId).diagnoses.find(d => d.id === dxId).name,
-        presLabel: E.getPresentation(presId).label,
-        status: accepted ? 'accepted' : 'review', quality };
-      feedback.unshift(rec); store.set(KEY.feedback, feedback);
-      if (accepted) {
-        const mult = dir === 'up' ? 1.8 : dir === 'down' ? 0.5 : 0.2;
-        corrections[presId] = corrections[presId] || {};
-        corrections[presId][dxId] = Math.round(((corrections[presId][dxId] || 1) * mult) * 100) / 100;
-        store.set(KEY.corrections, corrections);
-        toast('Zaakceptowano — korekta zastosowana lokalnie.', 'ok');
-      } else {
-        toast('Przyjęto do weryfikacji. Dodaj więcej uzasadnienia, by zwiększyć szansę uwzględnienia.', 'warn');
-      }
+      const accepted = applyFeedback(presId, dxId, dir, reason);
+      toast(accepted ? 'Zaakceptowano — korekta zastosowana lokalnie.' : 'Przyjęto do weryfikacji. Dodaj więcej uzasadnienia, by zwiększyć szansę uwzględnienia.', accepted ? 'ok' : 'warn');
       document.getElementById('fbReason').value = '';
       paintFb();
     });
@@ -755,6 +777,43 @@
     if (/(ponieważ|gdyż|bo |kryteri|wytyczn|objaw|czuł|swoist|lr|ryzyk|badani|wynik|guideline|score|skal)/.test(t)) q++;
     if (r.length >= 120) q++;
     return q;
+  }
+  function applyFeedback(presId, dxId, dir, reason) {
+    const quality = scoreReason(reason);
+    const accepted = quality >= 2;
+    const pres = E.getPresentation(presId);
+    const rec = { id: 'f' + Date.now(), date: new Date().toISOString(), presId, dxId, dir, reason,
+      dxName: pres.diagnoses.find(d => d.id === dxId).name, presLabel: pres.label,
+      status: accepted ? 'accepted' : 'review', quality };
+    feedback.unshift(rec); store.set(KEY.feedback, feedback);
+    if (accepted) {
+      const mult = dir === 'up' ? 1.8 : dir === 'down' ? 0.5 : 0.2;
+      corrections[presId] = corrections[presId] || {};
+      corrections[presId][dxId] = Math.round(((corrections[presId][dxId] || 1) * mult) * 100) / 100;
+      store.set(KEY.corrections, corrections);
+    }
+    return accepted;
+  }
+  // szybkie zgłoszenie z panelu wyników
+  function openFeedback(presId, dxId) {
+    const pres = E.getPresentation(presId);
+    modal('Zgłoś poprawkę różnicowania', `
+      <p class="small muted mb-4">Twoja uwaga pomaga doskonalić wyniki. Po weryfikacji merytorycznej korekta wpłynie na kolejne raporty (lokalnie w tym prototypie).</p>
+      <div class="field mb-3"><label class="label">Rozpoznanie</label>
+        <select class="select" id="ofDx">${pres.diagnoses.map(d => `<option value="${d.id}" ${d.id === dxId ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select></div>
+      <div class="field mb-3"><label class="label">Twoja ocena</label>
+        <select class="select" id="ofDir"><option value="up">Powinno być wyżej</option><option value="down">Powinno być niżej</option><option value="wrong">Nie pasuje do tej prezentacji</option></select></div>
+      <div class="field"><label class="label">Uzasadnienie kliniczne</label>
+        <textarea class="textarea" id="ofReason" rows="4" placeholder="Np. „W tej prezentacji rozwarstwienie jest niedoszacowane, ponieważ ból rozdzierający i różnica ciśnień to kryteria wysokiego ryzyka wg wytycznych ESC.”"></textarea></div>`,
+      `<button class="btn btn-ghost" data-close>Anuluj</button><button class="btn btn-primary" id="ofSend">${svg(I.flag, 16)} Wyślij</button>`);
+    document.getElementById('ofSend').addEventListener('click', () => {
+      const reason = document.getElementById('ofReason').value.trim();
+      if (reason.length < 12) { toast('Dodaj merytoryczne uzasadnienie.', 'warn'); return; }
+      const accepted = applyFeedback(presId, document.getElementById('ofDx').value, document.getElementById('ofDir').value, reason);
+      closeModal();
+      toast(accepted ? 'Zaakceptowano — korekta zastosowana. Analizuję ponownie…' : 'Przyjęto do weryfikacji.', accepted ? 'ok' : 'warn');
+      if (accepted && lastResult) reRun();
+    });
   }
 
   /* =================================================================== */
