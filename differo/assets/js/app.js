@@ -125,6 +125,30 @@
     w.document.write(html); w.document.close();
   }
 
+  /* ---- kontrola dostępu wg roli (student vs lekarz) ---- */
+  function isDoctor() { return (session && session.role) === 'Lekarz'; }
+  function switchToDoctor() {
+    session.role = 'Lekarz'; store.set(KEY.session, session);
+    if (profile) { profile.role = 'Lekarz'; store.set(KEY.profile, profile); }
+  }
+  const DOCTOR_ONLY_VIEWS = { zgloszenia: 'Zgłoszenia i poprawki' };
+  function clinicianGate(feature) {
+    modal('Funkcja dla klinicystów', `
+      <div class="flex items-center gap-3 mb-4"><span class="stat ico" style="margin:0">${svg(I.shield, 18)}</span>
+        <div><b>${esc(feature)}</b><p class="hint">Dostępne w koncie klinicysty (lekarz / rezydent).</p></div></div>
+      <p class="small muted mb-3">Konto studenckie skupia się na nauce i bezpiecznym ćwiczeniu rozumowania klinicznego. Pełne treści decyzyjne — szczegóły postępowania i dawkowanie, eksport raportu klinicznego oraz współtworzenie korekt — wymagają potwierdzenia statusu zawodowego.</p>
+      <div class="alert alert-info" style="font-size:var(--fs-xs)">${svg(I.info, 14, 'alert-icon')}<span>W tej wersji demonstracyjnej możesz przełączyć się na konto klinicysty, aby zobaczyć pełny zakres.</span></div>`,
+      `<button class="btn btn-ghost" data-close>Zostań w trybie nauki</button><button class="btn btn-primary" id="gateSwitch">Wypróbuj jako klinicysta (demo)</button>`);
+    document.getElementById('gateSwitch').addEventListener('click', () => { switchToDoctor(); closeModal(); toast('Przełączono na konto klinicysty (demo).', 'ok'); render(); });
+  }
+  function viewLocked(vr, feature) {
+    vr.innerHTML = `<div class="empty-state"><div class="ico">${svg(I.shield, 26)}</div>
+      <h3>${esc(feature)} — konto klinicysty</h3>
+      <p class="small mt-2" style="max-width:48ch;margin:8px auto 0">Ta sekcja zawiera treści decyzyjne przeznaczone dla lekarzy i rezydentów. Konto studenckie ma pełny dostęp do trybu nauki, bazy wiedzy oraz ćwiczenia wywiadów z różnicowaniem.</p>
+      <div class="flex gap-2 mt-6" style="justify-content:center"><a class="btn btn-ghost" href="#nauka">${svg(I.nauka, 16)} Przejdź do trybu nauki</a><button class="btn btn-primary" id="lockedSwitch">Wypróbuj jako klinicysta (demo)</button></div></div>`;
+    document.getElementById('lockedSwitch').addEventListener('click', () => { switchToDoctor(); toast('Przełączono na konto klinicysty (demo).', 'ok'); render(); });
+  }
+
   /* =================================================================== */
   /*  LOGOWANIE                                                           */
   /* =================================================================== */
@@ -154,11 +178,12 @@
                 <input class="input" id="authEmail" type="text" placeholder="imie.nazwisko@szpital.pl" value="${esc((session && session.email) || '')}" /></div>
               <div class="field"><label class="label">Hasło</label>
                 <input class="input" id="authPass" type="password" placeholder="••••••••" /></div>
-              <div class="field"><label class="label">Twoja rola</label>
+              <div class="field"><label class="label">Typ konta (różny zakres dostępu)</label>
                 <div class="role-toggle" id="roleToggle">
                   <div class="role-opt is-active" data-role="Lekarz">Lekarz / specjalista</div>
                   <div class="role-opt" data-role="Student">Student medycyny</div>
-                </div></div>
+                </div>
+                <p class="hint" id="roleDesc"></p></div>
               <label class="checkbox"><input type="checkbox" id="authTerms" />
                 <span>Potwierdzam, że jestem profesjonalistą medycznym, nie wprowadzam danych identyfikujących pacjenta i akceptuję <a href="#" data-legal>regulamin oraz politykę prywatności</a>. Odpowiedzialność za decyzję kliniczną ponoszę ja.</span></label>
               <button class="btn btn-primary btn-lg btn-block" type="submit">Wejdź do aplikacji</button>
@@ -169,9 +194,15 @@
       </div>`;
 
     let role = 'Lekarz';
+    const ROLE_DESC = {
+      Lekarz: 'Pełny dostęp: różnicowanie ze szczegółami postępowania i dawkowania, eksport raportu klinicznego oraz zgłaszanie i współtworzenie korekt.',
+      Student: 'Dostęp edukacyjny: pełny tryb nauki, baza wiedzy i ćwiczenie wywiadów z różnicowaniem — bez szczegółów postępowania, eksportu raportu i pętli korekt.',
+    };
+    const roleDesc = document.getElementById('roleDesc');
+    roleDesc.textContent = ROLE_DESC[role];
     root.querySelectorAll('.role-opt').forEach(o => o.addEventListener('click', () => {
       root.querySelectorAll('.role-opt').forEach(x => x.classList.remove('is-active'));
-      o.classList.add('is-active'); role = o.dataset.role;
+      o.classList.add('is-active'); role = o.dataset.role; roleDesc.textContent = ROLE_DESC[role];
     }));
     root.querySelector('[data-legal]').addEventListener('click', e => { e.preventDefault(); session = { preview: true }; renderAuthLegalPreview(); });
     document.getElementById('authForm').addEventListener('submit', e => {
@@ -200,7 +231,7 @@
     { id: 'wywiad', label: 'Nowy wywiad', icon: I.wywiad },
     { id: 'historia', label: 'Historia wywiadów', icon: I.historia, count: () => history.length },
     { id: 'baza', label: 'Baza wiedzy', icon: I.baza },
-    { id: 'zgloszenia', label: 'Zgłoszenia i poprawki', icon: I.zgloszenia, count: () => feedback.length },
+    { id: 'zgloszenia', label: 'Zgłoszenia i poprawki', icon: I.zgloszenia, count: () => feedback.length, doctorOnly: true },
     { id: 'nauka', label: 'Tryb nauki', icon: I.nauka },
     { sec: 'Konto' },
     { id: 'profil', label: 'Profil', icon: I.profil },
@@ -212,13 +243,14 @@
   function renderShell(view) {
     const navHtml = NAV.map(n => {
       if (n.sec) return `<div class="nav-section">${n.sec}</div>`;
+      if (n.doctorOnly && !isDoctor()) return '';
       const cnt = n.count ? n.count() : null;
       return `<a class="nav-item ${view === n.id ? 'is-active' : ''}" href="#${n.id}">
         <span class="ico">${svg(n.icon, 19)}</span> ${n.label}
         ${cnt ? `<span class="count">${cnt}</span>` : ''}</a>`;
     }).join('');
 
-    const mobileNav = NAV.filter(n => !n.sec).map(n =>
+    const mobileNav = NAV.filter(n => !n.sec && !(n.doctorOnly && !isDoctor())).map(n =>
       `<a class="chip ${view === n.id ? 'is-active' : ''}" href="#${n.id}">${n.label}</a>`).join('');
 
     root.innerHTML = `
@@ -253,6 +285,7 @@
     document.getElementById('userChip').addEventListener('click', () => { location.hash = '#profil'; });
 
     const vr = document.getElementById('viewRoot');
+    if (DOCTOR_ONLY_VIEWS[view] && !isDoctor()) { viewLocked(vr, DOCTOR_ONLY_VIEWS[view]); return; }
     ({ pulpit: viewPulpit, wywiad: viewWywiad, historia: viewHistoria, baza: viewBaza, zgloszenia: viewZgloszenia, nauka: viewNauka, profil: viewProfil, ustawienia: viewUstawienia, prawne: viewPrawne }[view] || viewPulpit)(vr);
   }
 
@@ -452,8 +485,8 @@
             <span class="badge" style="margin-left:6px">kontekst: ${esc(res.context)}</span></div>
           <div class="flex gap-2 wrap">
             <button class="btn btn-ghost btn-sm" id="btnSave">${svg(I.save, 15)} Zapisz</button>
-            <button class="btn btn-ghost btn-sm" id="btnExport">${svg(I.download, 15)} Raport</button>
-            <button class="btn btn-ghost btn-sm" id="btnFeedback">${svg(I.flag, 15)} Zgłoś poprawkę</button>
+            <button class="btn btn-ghost btn-sm" id="btnExport" ${isDoctor() ? '' : 'title="Funkcja klinicysty"'}>${isDoctor() ? svg(I.download, 15) : svg(I.shield, 14)} Raport</button>
+            <button class="btn btn-ghost btn-sm" id="btnFeedback" ${isDoctor() ? '' : 'title="Funkcja klinicysty"'}>${isDoctor() ? svg(I.flag, 15) : svg(I.shield, 14)} Zgłoś poprawkę</button>
           </div>
         </div>
 
@@ -507,7 +540,7 @@
     addSel.addEventListener('change', () => { if (addSel.value) { formFindings.push(addSel.value); reRun(); } });
 
     document.getElementById('btnSave').addEventListener('click', saveCurrent);
-    document.getElementById('btnExport').addEventListener('click', () => printReport({
+    document.getElementById('btnExport').addEventListener('click', () => { if (!isDoctor()) { clinicianGate('Eksport raportu klinicznego'); return; } printReport({
       title: res.presentation.label, context: res.context, when: fmtDate(new Date().toISOString()),
       clinician: (profile && profile.name) || '',
       demo: [lastInput.demographics.age ? lastInput.demographics.age + ' lat' : '', lastInput.demographics.sex === 'M' ? 'mężczyzna' : lastInput.demographics.sex === 'K' ? 'kobieta' : '', 'czas: ' + lastInput.demographics.dur].filter(Boolean).join(', '),
@@ -515,8 +548,8 @@
       redFlags: res.redFlags.map(f => f.label),
       differential: res.results.map(r => ({ name: r.dx.name, share: Math.round(r.share), cantMiss: !!r.dx.cantMiss })),
       tests: res.tests, inputText: lastInput.text,
-    }));
-    document.getElementById('btnFeedback').addEventListener('click', () => openFeedback(res.presentation.id, res.results[0].dx.id));
+    }); });
+    document.getElementById('btnFeedback').addEventListener('click', () => { if (!isDoctor()) { clinicianGate('Zgłaszanie i współtworzenie korekt'); return; } openFeedback(res.presentation.id, res.results[0].dx.id); });
     document.getElementById('resCard').scrollIntoView({ behavior: prefs.reducedMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
@@ -547,13 +580,14 @@
           <div class="driver-list">${drv}</div>
           <div class="dx-detail">
             <h5>Zalecane badania</h5><ul>${(r.dx.tests || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-            <h5>Postępowanie</h5><ul>${(r.dx.management || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+            <h5>Postępowanie</h5>${isDoctor() ? `<ul>${(r.dx.management || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : `<div class="alert alert-info" style="font-size:var(--fs-xs)">${svg(I.shield, 13, 'alert-icon')}<span>Szczegóły postępowania i dawkowanie — dostępne w koncie klinicysty. <a href="#" data-gate>Dowiedz się więcej →</a></span></div>`}
             <h5>Źródła</h5><p class="source-tag">${(r.dx.sources || []).map(esc).join(' · ')}</p>
             <p class="hint mt-2">P. wyjściowe (${esc(lastInput.demographics.ctx)}): ${(r.prior * 100).toFixed(1)}% → po uwzględnieniu znalezisk udział ${r.share.toFixed(0)}%.</p>
           </div>
         </div>`;
     }).join('');
     list.querySelectorAll('[data-toggle]').forEach(h => h.addEventListener('click', () => h.closest('.result-dx').classList.toggle('open')));
+    list.querySelectorAll('[data-gate]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); clinicianGate('Szczegóły postępowania klinicznego'); }));
   }
 
   /* --------- kalkulatory skal (interaktywne) --------- */
@@ -709,7 +743,7 @@
       <h5 class="label mb-2">Prawdopodobieństwo wyjściowe (kontekst)</h5>
       <div class="flex wrap gap-2 mb-4">${Object.entries(d.prior || {}).map(([k, v]) => `<span class="chip" style="cursor:default">${esc(k)}: ${(v * 100).toFixed(1)}%</span>`).join('')}</div>
       <h5 class="label mb-2">Zalecane badania</h5><ul class="small mb-4">${(d.tests || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-      <h5 class="label mb-2">Postępowanie</h5><ul class="small mb-4">${(d.management || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+      <h5 class="label mb-2">Postępowanie</h5>${isDoctor() ? `<ul class="small mb-4">${(d.management || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : `<div class="alert alert-info mb-4" style="font-size:var(--fs-xs)">${svg(I.shield, 13, 'alert-icon')}<span>Szczegóły postępowania i dawkowanie dostępne w koncie klinicysty.</span></div>`}
       <h5 class="label mb-2">Źródła</h5><p class="source-tag">${(d.sources || []).map(esc).join(' · ')}</p>`,
       `<button class="btn btn-ghost" data-close>Zamknij</button>`);
   }
@@ -1028,9 +1062,23 @@
             <div class="stat" style="padding:0;margin-top:var(--sp-4)"><div class="v tnum">${feedback.filter(f => f.status === 'accepted').length}</div><div class="k">zaakceptowanych uwag</div></div>
           </div>
           <div class="hr"></div>
+          <h4 class="label mb-3">Zakres dostępu — ${esc(profile.role)}</h4>
+          ${[
+            ['Tryb nauki (quiz, fiszki, postęp)', true],
+            ['Baza wiedzy', true],
+            ['Wywiad: różnicowanie, czerwone flagi, badania', true],
+            ['Szczegóły postępowania i dawkowanie', isDoctor()],
+            ['Eksport raportu klinicznego', isDoctor()],
+            ['Zgłaszanie i współtworzenie korekt', isDoctor()],
+          ].map(([t, on]) => `<div class="flex items-center gap-2 mb-2" style="font-size:var(--fs-sm);color:${on ? 'var(--text-soft)' : 'var(--text-faint)'}">
+            <span style="color:${on ? 'var(--ok)' : 'var(--text-faint)'}">${svg(on ? I.check : I.shield, 15)}</span> ${esc(t)}</div>`).join('')}
+          ${isDoctor() ? '' : `<button class="btn btn-ghost btn-sm mt-3" id="profUpgrade">${svg(I.shield, 14)} Wypróbuj konto klinicysty (demo)</button>`}
+          <div class="hr"></div>
           <p class="muted small">Differo nie tworzy kartoteki pacjenta. Historia wywiadów to wyłącznie Twój notatnik kliniczny.</p>
         </div>
       </div>`;
+    const pu = document.getElementById('profUpgrade');
+    if (pu) pu.addEventListener('click', () => { switchToDoctor(); toast('Przełączono na konto klinicysty (demo).', 'ok'); renderShell('profil'); });
     document.getElementById('pSave').addEventListener('click', () => {
       profile = { name: document.getElementById('pName').value.trim() || 'Użytkownik', role: document.getElementById('pRole').value,
         specialization: document.getElementById('pSpec').value.trim(), institution: document.getElementById('pInst').value.trim() };

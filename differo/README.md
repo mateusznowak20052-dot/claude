@@ -44,6 +44,23 @@ lokalnie w `localStorage`).
   - **Profil / Ustawienia / Prawne** — konto, motyw (jasny/ciemny/auto),
     eksport i usuwanie danych, regulamin, polityka prywatności, disclaimer.
 
+## Dwa poziomy dostępu (student vs lekarz)
+
+Przy logowaniu wybierasz typ konta — zakres funkcji jest różny:
+
+| Funkcja | Student | Lekarz |
+|---|:--:|:--:|
+| Tryb nauki (quiz, fiszki, postęp) | ✓ | ✓ |
+| Baza wiedzy | ✓ | ✓ |
+| Wywiad: różnicowanie, czerwone flagi, zalecane badania | ✓ | ✓ |
+| Szczegóły postępowania i dawkowanie | — | ✓ |
+| Eksport raportu klinicznego (PDF) | — | ✓ |
+| Zgłaszanie i współtworzenie korekt | — | ✓ |
+
+Konto studenckie chroni przed nadmiernym zaufaniem do treści decyzyjnych i
+kładzie nacisk na naukę. W wersji demo można przełączyć się na konto klinicysty,
+aby zobaczyć pełny zakres (w produkcji wymagałoby to weryfikacji statusu).
+
 ## Architektura (3 warstwy)
 
 1. **Interpretacja wywiadu** (`engine.js` → `extractFindings`): regułowe NLP po
