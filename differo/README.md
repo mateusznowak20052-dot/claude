@@ -41,6 +41,10 @@ lokalnie w `localStorage`).
   - **Baza wiedzy** — przegląd chorób i objawów ze źródłami.
   - **Zgłoszenia i poprawki** — zgłaszasz, że różnicowanie jest błędne i
     dlaczego; po weryfikacji korekta wpływa na kolejne wyniki.
+  - **Tryb nauki** (dla studentów) — quiz przypadków z punktacją i passą,
+    przewodnik **„Wywiad krok po kroku”** (pełne badanie podmiotowe z
+    mnemotechnikami SOCRATES i ICE, z analizą zebranego wywiadu w silniku),
+    fiszki skal oraz postęp z odznakami.
   - **Profil / Ustawienia / Prawne** — konto, motyw (jasny/ciemny/auto),
     eksport i usuwanie danych, regulamin, polityka prywatności, disclaimer.
 

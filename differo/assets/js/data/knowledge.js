@@ -1006,6 +1006,146 @@ DFR.data = (function () {
     { pres: 'febrile_child', dx: 'otitis_media', text: 'Dziecko 3 l., gorączka, rozdrażnienie, pociąga się za ucho, w otoskopii uwypuklona błona bębenkowa.', pearl: 'Ból ucha + uwypuklona błona → ostre zapalenie ucha; leczenie p/bólowe, antybiotyk wg wskazań.' },
   ];
 
+  /* ------------------------------------------------------------------ */
+  /* 6) PRZEWODNIK: WYWIAD KROK PO KROKU (badanie podmiotowe)            */
+  /* ------------------------------------------------------------------ */
+  const interviewGuide = [
+    {
+      id: 'intro', short: 'Nawiązanie kontaktu', title: 'Przygotowanie i nawiązanie kontaktu',
+      goal: 'Zbuduj zaufanie i zapewnij warunki do rozmowy — to podnosi jakość zebranych informacji.',
+      questions: [
+        'Przedstaw się i wyjaśnij cel rozmowy.',
+        'Zadaj otwarte pytanie: „Co Pana/Panią do nas sprowadza?”.',
+        'Nie przerywaj przez pierwsze ~30–60 s („złota minuta”).',
+        'Zapewnij prywatność i komfort; uzyskaj zgodę na wywiad.',
+      ],
+      pearl: 'Pytanie otwarte na starcie daje więcej informacji niż seria pytań zamkniętych. Słuchaj, zanim zaczniesz dopytywać.',
+      placeholder: 'Powód zgłoszenia własnymi słowami pacjenta (bez danych osobowych).',
+    },
+    {
+      id: 'cc', short: 'Skarga główna', title: 'Skarga główna (powód zgłoszenia)',
+      goal: 'Ustal jeden–dwa dominujące problemy, najlepiej słowami pacjenta.',
+      questions: [
+        'Co dolega najbardziej?',
+        'Od kiedy to trwa?',
+        'Jeśli skarg jest kilka — która jest najważniejsza dla pacjenta?',
+      ],
+      pearl: 'Zanotuj skargę cytatem pacjenta i ustal objaw wiodący — on wyznacza dalszą ścieżkę.',
+      placeholder: 'np. „ból w klatce od 2 godzin”, „duszność od wczoraj”.',
+    },
+    {
+      id: 'hpi', short: 'Choroba obecna', title: 'Wywiad choroby obecnej — schemat SOCRATES',
+      goal: 'Scharakteryzuj objaw wiodący w sposób uporządkowany i kompletny.',
+      mnemonic: {
+        name: 'SOCRATES (dla bólu i większości objawów)',
+        items: [
+          ['S', 'Umiejscowienie (Site)', 'Gdzie dokładnie? Poproś, by pokazał/a jednym palcem.'],
+          ['O', 'Początek (Onset)', 'Nagły czy stopniowy? Co robił/a, gdy się zaczęło?'],
+          ['C', 'Charakter (Character)', 'Kłujący, gniotący, piekący, rozdzierający, tępy?'],
+          ['R', 'Promieniowanie (Radiation)', 'Czy promieniuje? Dokąd — ręka, żuchwa, plecy, pachwina?'],
+          ['A', 'Objawy towarzyszące (Associations)', 'Duszność, poty, nudności, gorączka, zawroty, kołatanie?'],
+          ['T', 'Przebieg w czasie (Time)', 'Stały, falujący, narastający? Jak długo trwa epizod?'],
+          ['E', 'Nasila / łagodzi (Exacerbating/relieving)', 'Co pomaga, co pogarsza — pozycja, wysiłek, jedzenie, leki?'],
+          ['S', 'Nasilenie (Severity)', 'Skala 0–10; wpływ na sen i codzienne funkcjonowanie.'],
+        ],
+      },
+      questions: ['Przejdź przez wszystkie litery SOCRATES dla objawu wiodącego.', 'Dopytaj o ewolucję objawu od początku do teraz.'],
+      pearl: 'Ten sam schemat działa dla bólu, duszności, zawrotów czy kołatania — uniwersalne narzędzie porządkujące.',
+      placeholder: 'Opisz objaw wg SOCRATES (umiejscowienie, początek, charakter…).',
+    },
+    {
+      id: 'ros', short: 'Przegląd układów', title: 'Przegląd układów (pytania przesiewowe)',
+      goal: 'Wychwyć objawy spoza skargi głównej — często ujawniają czerwone flagi.',
+      questions: [
+        'Ogólne: gorączka, dreszcze, utrata masy ciała, nocne poty, osłabienie.',
+        'Krążenie: ból w klatce, kołatanie, duszność wysiłkowa, obrzęki, omdlenia.',
+        'Oddechowy: kaszel, duszność, krwioplucie, świsty, plwocina.',
+        'Pokarmowy: nudności/wymioty, ból brzucha, zmiana rytmu wypróżnień, krew w stolcu.',
+        'Moczowo-płciowy: pieczenie/częstomocz, krwiomocz, ból w okolicy lędźwiowej.',
+        'Nerwowy: ból głowy, zawroty, niedowład, zaburzenia mowy/widzenia.',
+        'Ruchu/skóra: bóle stawów, wysypka, obrzęk/zaczerwienienie.',
+      ],
+      pearl: 'Krótkie pytania przesiewowe są szybkie, a potrafią ujawnić objaw alarmowy, którego pacjent sam nie zgłosił.',
+      placeholder: 'Zanotuj dodatnie i istotne ujemne objawy z przeglądu układów.',
+    },
+    {
+      id: 'pmh', short: 'Choroby przebyte', title: 'Wywiad chorób przebytych i przewlekłych',
+      goal: 'Poznaj tło, które zmienia prawdopodobieństwa i ryzyko.',
+      questions: [
+        'Choroby przewlekłe (nadciśnienie, cukrzyca, astma/POChP, choroba wieńcowa, nowotwór).',
+        'Przebyte hospitalizacje, operacje, urazy, przetoczenia.',
+        'Przebyte podobne epizody w przeszłości.',
+      ],
+      pearl: 'Choroby współistniejące potrafią przesunąć całe różnicowanie (np. nowotwór → wyższe ryzyko zatorowości).',
+      placeholder: 'Choroby przewlekłe, operacje, hospitalizacje…',
+    },
+    {
+      id: 'meds', short: 'Leki i uczulenia', title: 'Leki i uczulenia',
+      goal: 'Leki bywają przyczyną objawów i zmieniają postępowanie.',
+      questions: [
+        'Leki przyjmowane na stałe (z dawkami) oraz ostatnio zmienione.',
+        'Leki bez recepty, suplementy, zioła; antykoncepcja/HTZ.',
+        'Szczególnie: NLPZ, leki przeciwkrzepliwe, glikokortykosteroidy.',
+        'Uczulenia — na co i jaki typ reakcji.',
+      ],
+      pearl: 'Zawsze dopytaj wprost o przeciwkrzepliwe i NLPZ — mają duży wpływ na ryzyko krwawienia.',
+      placeholder: 'Leki na stałe, uczulenia, ostatnie zmiany…',
+    },
+    {
+      id: 'fh', short: 'Wywiad rodzinny', title: 'Wywiad rodzinny',
+      goal: 'Oceń obciążenia dziedziczne i ryzyko sercowo-naczyniowe/onkologiczne.',
+      questions: [
+        'Choroby u krewnych I stopnia (zawał/udar, zwłaszcza wcześnie: < 55 r.ż. M / < 65 r.ż. K).',
+        'Nowotwory, cukrzyca, choroby autoimmunologiczne.',
+        'Nagłe zgony sercowe w młodym wieku.',
+      ],
+      pearl: 'Nagły zgon sercowy w rodzinie u pacjenta z omdleniem to istotna czerwona flaga.',
+      placeholder: 'Obciążenia rodzinne…',
+    },
+    {
+      id: 'sh', short: 'Wywiad społeczny', title: 'Wywiad społeczny i nałogi',
+      goal: 'Styl życia i narażenia często wskazują przyczynę lub modyfikują ryzyko.',
+      questions: [
+        'Palenie tytoniu — oblicz paczkolata (paczki/dzień × lata).',
+        'Alkohol i inne substancje (w tym dożylne).',
+        'Zawód i narażenia, warunki życia, aktywność fizyczna, dieta.',
+        'Podróże, kontakt z chorymi/zwierzętami (gdy istotne).',
+      ],
+      pearl: 'Paczkolata i spożycie alkoholu to konkretne liczby — zapisuj je, a nie ogólniki.',
+      placeholder: 'Nałogi, zawód, narażenia, podróże…',
+    },
+    {
+      id: 'gyn', short: 'Ginekologiczno-położniczy', title: 'Wywiad ginekologiczno-położniczy (jeśli dotyczy)',
+      goal: 'U kobiet w wieku rozrodczym kluczowy dla bezpieczeństwa.',
+      questions: [
+        'Data ostatniej miesiączki, regularność cykli.',
+        'Ciąże i porody, powikłania.',
+        'Antykoncepcja; możliwość obecnej ciąży.',
+      ],
+      pearl: 'U kobiety w wieku rozrodczym z bólem brzucha zawsze wyklucz ciążę (w tym pozamaciczną) — to czerwona flaga.',
+      placeholder: 'OM, cykle, ciąże, możliwość ciąży…',
+    },
+    {
+      id: 'ice', short: 'Podsumowanie', title: 'Podsumowanie, ICE i siatka bezpieczeństwa',
+      goal: 'Zweryfikuj zebrane dane i poznaj perspektywę pacjenta.',
+      mnemonic: {
+        name: 'ICE — perspektywa pacjenta',
+        items: [
+          ['I', 'Ideas (przekonania)', 'Co według pacjenta jest przyczyną?'],
+          ['C', 'Concerns (obawy)', 'Czego najbardziej się obawia?'],
+          ['E', 'Expectations (oczekiwania)', 'Czego oczekuje od wizyty?'],
+        ],
+      },
+      questions: [
+        'Streść pacjentowi wywiad i poproś o korektę/uzupełnienie.',
+        'Zapytaj: „Czy jest coś, o czym nie rozmawialiśmy, a jest ważne?”.',
+        'Odhacz czerwone flagi; zaplanuj badanie przedmiotowe i dalsze kroki.',
+      ],
+      pearl: 'Podsumowanie na głos wyłapuje nieporozumienia i braki — a ICE ujawnia realne obawy pacjenta.',
+      placeholder: 'Streszczenie, obawy/oczekiwania pacjenta, plan…',
+    },
+  ];
+
   /* expose */
-  return { findings: F, presentations, scores, teachingCases };
+  return { findings: F, presentations, scores, teachingCases, interviewGuide };
 })();

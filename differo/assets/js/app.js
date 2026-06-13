@@ -887,6 +887,7 @@
 
       <div class="flex gap-2 mb-5 wrap">
         <button class="chip is-active" data-ntab="quiz">${svg(I.spark, 15)} Quiz przypadków</button>
+        <button class="chip" data-ntab="interview">${svg(I.wywiad, 15)} Wywiad krok po kroku</button>
         <button class="chip" data-ntab="cards">${svg(I.baza, 15)} Fiszki skal</button>
         <button class="chip" data-ntab="progress">${svg(I.trophy, 15)} Twój postęp</button>
       </div>
@@ -896,7 +897,7 @@
     let tab = 'quiz';
     vr.querySelectorAll('[data-ntab]').forEach(b => b.addEventListener('click', () => {
       vr.querySelectorAll('[data-ntab]').forEach(x => x.classList.remove('is-active')); b.classList.add('is-active');
-      tab = b.dataset.ntab; ({ quiz: paintQuiz, cards: paintCards, progress: paintProgress }[tab])();
+      tab = b.dataset.ntab; ({ quiz: paintQuiz, interview: paintInterview, cards: paintCards, progress: paintProgress }[tab])();
     }));
     paintQuiz();
 
@@ -1032,6 +1033,79 @@
         learn = { answered: 0, correct: 0, streak: 0, best: 0, byPres: {} }; store.set(KEY.learn, learn);
         renderShell('nauka'); toast('Postęp zresetowany.');
       });
+    }
+
+    /* ---------- WYWIAD KROK PO KROKU ---------- */
+    function paintInterview() {
+      const steps = D.interviewGuide;
+      let idx = 0; const notes = {};
+      const mnemHtml = m => `<div class="card card-pad mb-4" style="background:var(--bg-sunken)">
+        <div class="label mb-3">Schemat: ${esc(m.name)}</div>
+        ${m.items.map(it => `<div class="flex gap-3 mb-2" style="font-size:var(--fs-sm)"><span class="avatar" style="width:26px;height:26px;font-size:12px;border-radius:7px;flex:none">${esc(it[0])}</span><div><b>${esc(it[1])}</b> — <span class="muted">${esc(it[2])}</span></div></div>`).join('')}</div>`;
+
+      function saveNote() { const t = document.getElementById('stepNote'); if (t && steps[idx]) notes[steps[idx].id] = t.value; }
+
+      function renderStep() {
+        if (idx >= steps.length) { renderSummary(); return; }
+        const s = steps[idx]; const pct = Math.round((idx / steps.length) * 100);
+        body.innerHTML = `
+          <div class="card card-pad fade-up">
+            <div class="flex items-center justify-between mb-2"><span class="badge badge-accent">Krok ${idx + 1} / ${steps.length}</span><span class="hint">${esc(s.short)}</span></div>
+            <div class="prob-track mb-4"><div class="prob-fill" style="width:${pct}%"></div></div>
+            <h3 class="serif" style="font-size:var(--fs-lg)">${esc(s.title)}</h3>
+            <p class="muted small mb-4">${esc(s.goal)}</p>
+            ${s.mnemonic ? mnemHtml(s.mnemonic) : ''}
+            <div class="label mb-2">O co pytać</div>
+            <ul class="small" style="margin-bottom:14px;line-height:1.7">${s.questions.map(q => `<li>${esc(q)}</li>`).join('')}</ul>
+            ${s.pearl ? `<div class="alert alert-info" style="font-size:var(--fs-xs)">${svg(I.spark, 13, 'alert-icon')}<span><b>Wskazówka:</b> ${esc(s.pearl)}</span></div>` : ''}
+            <div class="field mt-4"><label class="label">Twoje notatki z tego etapu (bez danych pacjenta)</label>
+              <textarea class="textarea" id="stepNote" rows="3" placeholder="${esc(s.placeholder || '')}">${esc(notes[s.id] || '')}</textarea></div>
+            <div class="flex items-center justify-between mt-4 gap-2">
+              <button class="btn btn-ghost" id="prevStep" ${idx === 0 ? 'disabled' : ''}>← Poprzedni</button>
+              <div class="flex gap-2"><button class="btn btn-subtle" id="skipInt">Pomiń do podsumowania</button>
+              <button class="btn btn-primary" id="nextStep">${idx === steps.length - 1 ? 'Zakończ i podsumuj' : 'Następny krok →'}</button></div>
+            </div>
+          </div>`;
+        document.getElementById('prevStep').addEventListener('click', () => { saveNote(); idx = Math.max(0, idx - 1); renderStep(); });
+        document.getElementById('nextStep').addEventListener('click', () => { saveNote(); idx++; renderStep(); });
+        document.getElementById('skipInt').addEventListener('click', () => { saveNote(); idx = steps.length; renderStep(); });
+      }
+
+      function renderSummary() {
+        const compiled = steps.map(s => notes[s.id] && notes[s.id].trim() ? `■ ${s.title}\n${notes[s.id].trim()}` : null).filter(Boolean).join('\n\n');
+        body.innerHTML = `
+          <div class="card card-pad fade-up">
+            <h3 class="serif" style="font-size:var(--fs-lg)">Twój uporządkowany wywiad</h3>
+            <p class="muted small mb-4">Tak wygląda zebrany wywiad. Przeanalizuj go silnikiem, by zobaczyć, jakie hipotezy z niego wynikają — im pełniejszy wywiad, tym trafniejsze różnicowanie.</p>
+            ${compiled ? `<div class="findings-box" style="display:block;white-space:pre-wrap;line-height:1.6">${esc(compiled)}</div>` : '<p class="muted small">Nie zapisano notatek — wróć i uzupełnij etapy, aby przećwiczyć zbieranie informacji.</p>'}
+            <div class="flex gap-2 mt-4 wrap">
+              <button class="btn btn-ghost" id="restartInt">↺ Zacznij od nowa</button>
+              ${compiled ? `<button class="btn btn-primary" id="analyzeInt">${svg(I.spark, 16)} Przeanalizuj w silniku</button>` : ''}
+            </div>
+            <div id="intResult" class="mt-4"></div>
+          </div>`;
+        document.getElementById('restartInt').addEventListener('click', () => { idx = 0; for (const k in notes) delete notes[k]; renderStep(); });
+        const ai = document.getElementById('analyzeInt');
+        if (ai) ai.addEventListener('click', () => {
+          const text = Object.values(notes).join('. ');
+          const ext = E.extractFindings(text); const extra = [];
+          const am = text.match(/(\d{1,3})\s*l(?:\.|at|ata)?\b/);
+          if (am) { const a = +am[1]; if (a >= 65) extra.push('age_ge_65', 'age_ge_50'); else if (a >= 50) extra.push('age_ge_50'); else if (a < 40) extra.push('age_lt_40'); }
+          if (/mężczyzn|chłopiec/i.test(text)) extra.push('male'); if (/kobiet|dziewczyn/i.test(text)) extra.push('female');
+          const fids = [...new Set([...ext.present, ...extra])].filter(id => D.findings[id]);
+          const out = document.getElementById('intResult');
+          if (fids.length < 2) { out.innerHTML = `<div class="alert alert-warn" style="font-size:var(--fs-xs)">${svg(I.info, 13, 'alert-icon')}<span>Za mało rozpoznanych objawów. Dopisz w notatkach więcej konkretów (charakter, lokalizacja, objawy towarzyszące) — to też lekcja: dobry wywiad to podstawa trafnej diagnostyki.</span></div>`; return; }
+          const pres = guessPresentation(fids);
+          const res = E.analyze({ presentationId: pres.id, findingIds: fids, context: 'SOR', corrections });
+          out.innerHTML = `<div class="card card-pad" style="background:var(--bg-sunken)">
+            <div class="flex items-center justify-between mb-2"><span class="badge badge-accent">${svg(presIcon(pres.id), 14)} ${esc(pres.label)}</span><span class="hint">rozpoznane objawy: ${fids.length}</span></div>
+            ${res.results.slice(0, 3).map(r => `<div class="flex items-center justify-between mb-1"><span class="small">${r.dx.cantMiss ? '⚠ ' : ''}${esc(r.dx.name)}</span><b class="tnum small">${r.share.toFixed(0)}%</b></div>`).join('')}
+            ${res.redFlags.length ? `<div class="alert alert-crit mt-2" style="font-size:var(--fs-xs)">${svg(I.flag, 13, 'alert-icon')}<span>${res.redFlags.map(f => esc(f.label)).join('; ')}</span></div>` : ''}
+            <p class="hint mt-2">Pełne różnicowanie z uzasadnieniem i skalami znajdziesz w „Nowy wywiad”.</p>
+          </div>`;
+        });
+      }
+      renderStep();
     }
   }
 
