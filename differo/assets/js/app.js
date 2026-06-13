@@ -131,7 +131,7 @@
     session.role = 'Lekarz'; store.set(KEY.session, session);
     if (profile) { profile.role = 'Lekarz'; store.set(KEY.profile, profile); }
   }
-  const DOCTOR_ONLY_VIEWS = { zgloszenia: 'Zgłoszenia i poprawki' };
+  const DOCTOR_ONLY_VIEWS = {}; // zgłoszenia są dostępne dla wszystkich — wiedza nie zależy od roli
   function clinicianGate(feature) {
     modal('Funkcja dla klinicystów', `
       <div class="flex items-center gap-3 mb-4"><span class="stat ico" style="margin:0">${svg(I.shield, 18)}</span>
@@ -195,8 +195,8 @@
 
     let role = 'Lekarz';
     const ROLE_DESC = {
-      Lekarz: 'Pełny dostęp: różnicowanie ze szczegółami postępowania i dawkowania, eksport raportu klinicznego oraz zgłaszanie i współtworzenie korekt.',
-      Student: 'Dostęp edukacyjny: pełny tryb nauki, baza wiedzy i ćwiczenie wywiadów z różnicowaniem — bez szczegółów postępowania, eksportu raportu i pętli korekt.',
+      Lekarz: 'Pełny dostęp: różnicowanie ze szczegółami postępowania i dawkowania oraz eksport raportu klinicznego.',
+      Student: 'Dostęp edukacyjny: pełny tryb nauki, baza wiedzy, ćwiczenie wywiadów z różnicowaniem oraz zgłaszanie poprawek — bez szczegółów postępowania i eksportu raportu klinicznego.',
     };
     const roleDesc = document.getElementById('roleDesc');
     roleDesc.textContent = ROLE_DESC[role];
@@ -231,7 +231,7 @@
     { id: 'wywiad', label: 'Nowy wywiad', icon: I.wywiad },
     { id: 'historia', label: 'Historia wywiadów', icon: I.historia, count: () => history.length },
     { id: 'baza', label: 'Baza wiedzy', icon: I.baza },
-    { id: 'zgloszenia', label: 'Zgłoszenia i poprawki', icon: I.zgloszenia, count: () => feedback.length, doctorOnly: true },
+    { id: 'zgloszenia', label: 'Zgłoszenia i poprawki', icon: I.zgloszenia, count: () => feedback.length },
     { id: 'nauka', label: 'Tryb nauki', icon: I.nauka },
     { sec: 'Konto' },
     { id: 'profil', label: 'Profil', icon: I.profil },
@@ -486,7 +486,7 @@
           <div class="flex gap-2 wrap">
             <button class="btn btn-ghost btn-sm" id="btnSave">${svg(I.save, 15)} Zapisz</button>
             <button class="btn btn-ghost btn-sm" id="btnExport" ${isDoctor() ? '' : 'title="Funkcja klinicysty"'}>${isDoctor() ? svg(I.download, 15) : svg(I.shield, 14)} Raport</button>
-            <button class="btn btn-ghost btn-sm" id="btnFeedback" ${isDoctor() ? '' : 'title="Funkcja klinicysty"'}>${isDoctor() ? svg(I.flag, 15) : svg(I.shield, 14)} Zgłoś poprawkę</button>
+            <button class="btn btn-ghost btn-sm" id="btnFeedback">${svg(I.flag, 15)} Zgłoś poprawkę</button>
           </div>
         </div>
 
@@ -549,7 +549,7 @@
       differential: res.results.map(r => ({ name: r.dx.name, share: Math.round(r.share), cantMiss: !!r.dx.cantMiss })),
       tests: res.tests, inputText: lastInput.text,
     }); });
-    document.getElementById('btnFeedback').addEventListener('click', () => { if (!isDoctor()) { clinicianGate('Zgłaszanie i współtworzenie korekt'); return; } openFeedback(res.presentation.id, res.results[0].dx.id); });
+    document.getElementById('btnFeedback').addEventListener('click', () => openFeedback(res.presentation.id, res.results[0].dx.id));
     document.getElementById('resCard').scrollIntoView({ behavior: prefs.reducedMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
@@ -1067,9 +1067,9 @@
             ['Tryb nauki (quiz, fiszki, postęp)', true],
             ['Baza wiedzy', true],
             ['Wywiad: różnicowanie, czerwone flagi, badania', true],
+            ['Zgłaszanie i współtworzenie korekt', true],
             ['Szczegóły postępowania i dawkowanie', isDoctor()],
             ['Eksport raportu klinicznego', isDoctor()],
-            ['Zgłaszanie i współtworzenie korekt', isDoctor()],
           ].map(([t, on]) => `<div class="flex items-center gap-2 mb-2" style="font-size:var(--fs-sm);color:${on ? 'var(--text-soft)' : 'var(--text-faint)'}">
             <span style="color:${on ? 'var(--ok)' : 'var(--text-faint)'}">${svg(on ? I.check : I.shield, 15)}</span> ${esc(t)}</div>`).join('')}
           ${isDoctor() ? '' : `<button class="btn btn-ghost btn-sm mt-3" id="profUpgrade">${svg(I.shield, 14)} Wypróbuj konto klinicysty (demo)</button>`}

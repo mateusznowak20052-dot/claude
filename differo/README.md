@@ -53,9 +53,9 @@ Przy logowaniu wybierasz typ konta — zakres funkcji jest różny:
 | Tryb nauki (quiz, fiszki, postęp) | ✓ | ✓ |
 | Baza wiedzy | ✓ | ✓ |
 | Wywiad: różnicowanie, czerwone flagi, zalecane badania | ✓ | ✓ |
+| Zgłaszanie i współtworzenie korekt | ✓ | ✓ |
 | Szczegóły postępowania i dawkowanie | — | ✓ |
 | Eksport raportu klinicznego (PDF) | — | ✓ |
-| Zgłaszanie i współtworzenie korekt | — | ✓ |
 
 Konto studenckie chroni przed nadmiernym zaufaniem do treści decyzyjnych i
 kładzie nacisk na naukę. W wersji demo można przełączyć się na konto klinicysty,
