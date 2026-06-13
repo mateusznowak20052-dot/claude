@@ -8,7 +8,7 @@
   /* ----------------------------- magazyn ----------------------------- */
   const KEY = {
     session: 'dfr-session', profile: 'dfr-profile', history: 'dfr-history',
-    feedback: 'dfr-feedback', corrections: 'dfr-corrections', prefs: 'dfr-prefs', theme: 'dfr-theme',
+    feedback: 'dfr-feedback', corrections: 'dfr-corrections', prefs: 'dfr-prefs', theme: 'dfr-theme', learn: 'dfr-learn',
   };
   const store = {
     get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
@@ -22,6 +22,7 @@
   let feedback = store.get(KEY.feedback, []);
   let corrections = store.get(KEY.corrections, {});
   let prefs = store.get(KEY.prefs, { reducedMotion: false });
+  let learn = store.get(KEY.learn, { answered: 0, correct: 0, streak: 0, best: 0, byPres: {} });
 
   const D = DFR.data, E = DFR.engine;
   let lastResult = null, lastInput = null; // do zapisu/zgłoszeń
@@ -51,6 +52,9 @@
     download: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',
     logout: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
     info: 'M12 16v-4M12 8h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z',
+    nauka: 'M22 10 12 5 2 10l10 5 10-5zM6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5',
+    spark: 'M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z',
+    trophy: 'M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3',
   };
   function svg(path, size = 20, cls = '') {
     return `<svg class="${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${
@@ -197,12 +201,13 @@
     { id: 'historia', label: 'Historia wywiadów', icon: I.historia, count: () => history.length },
     { id: 'baza', label: 'Baza wiedzy', icon: I.baza },
     { id: 'zgloszenia', label: 'Zgłoszenia i poprawki', icon: I.zgloszenia, count: () => feedback.length },
+    { id: 'nauka', label: 'Tryb nauki', icon: I.nauka },
     { sec: 'Konto' },
     { id: 'profil', label: 'Profil', icon: I.profil },
     { id: 'ustawienia', label: 'Ustawienia', icon: I.ustawienia },
     { id: 'prawne', label: 'Prawne', icon: I.prawne },
   ];
-  const TITLES = { pulpit: 'Pulpit', wywiad: 'Nowy wywiad', historia: 'Historia wywiadów', baza: 'Baza wiedzy', zgloszenia: 'Zgłoszenia i poprawki', profil: 'Profil', ustawienia: 'Ustawienia', prawne: 'Informacje prawne' };
+  const TITLES = { pulpit: 'Pulpit', wywiad: 'Nowy wywiad', historia: 'Historia wywiadów', baza: 'Baza wiedzy', zgloszenia: 'Zgłoszenia i poprawki', nauka: 'Tryb nauki', profil: 'Profil', ustawienia: 'Ustawienia', prawne: 'Informacje prawne' };
 
   function renderShell(view) {
     const navHtml = NAV.map(n => {
@@ -248,7 +253,7 @@
     document.getElementById('userChip').addEventListener('click', () => { location.hash = '#profil'; });
 
     const vr = document.getElementById('viewRoot');
-    ({ pulpit: viewPulpit, wywiad: viewWywiad, historia: viewHistoria, baza: viewBaza, zgloszenia: viewZgloszenia, profil: viewProfil, ustawienia: viewUstawienia, prawne: viewPrawne }[view] || viewPulpit)(vr);
+    ({ pulpit: viewPulpit, wywiad: viewWywiad, historia: viewHistoria, baza: viewBaza, zgloszenia: viewZgloszenia, nauka: viewNauka, profil: viewProfil, ustawienia: viewUstawienia, prawne: viewPrawne }[view] || viewPulpit)(vr);
   }
 
   /* =================================================================== */
@@ -269,6 +274,17 @@
         <div class="card stat"><div class="ico">${svg(I.baza, 18)}</div><div class="v tnum">${D.presentations.length}</div><div class="k">ścieżek klinicznych</div></div>
         <div class="card stat"><div class="ico">${svg(I.zgloszenia, 18)}</div><div class="v tnum">${feedback.length}</div><div class="k">Twoich zgłoszeń</div></div>
         <div class="card stat"><div class="ico">${svg(I.check, 18)}</div><div class="v tnum">${accepted}</div><div class="k">zastosowanych korekt</div></div>
+      </div>
+
+      <div class="card card-pad mb-6" style="background:linear-gradient(120deg,var(--accent-soft),var(--bg-elev));border-color:var(--accent-soft-2)">
+        <div class="flex items-center justify-between wrap gap-4">
+          <div class="flex items-center gap-4">
+            <span class="stat ico" style="margin:0;width:44px;height:44px">${svg(I.nauka, 22)}</span>
+            <div><h3 class="serif" style="font-size:var(--fs-lg)">${(profile && profile.role) === 'Student' ? 'Ucz się szybciej z trybem nauki' : 'Tryb nauki dla studentów i rezydentów'}</h3>
+              <p class="muted small">Quiz przypadków, fiszki skal klinicznych i odznaki za postępy${learn.answered ? ` · masz już ${learn.answered} rozwiązanych, passa ${learn.streak}` : ''}.</p></div>
+          </div>
+          <a class="btn btn-primary" href="#nauka">${svg(I.spark, 16)} ${learn.answered ? 'Kontynuuj naukę' : 'Rozpocznij naukę'}</a>
+        </div>
       </div>
 
       <div class="grid-2">
@@ -814,6 +830,174 @@
       toast(accepted ? 'Zaakceptowano — korekta zastosowana. Analizuję ponownie…' : 'Przyjęto do weryfikacji.', accepted ? 'ok' : 'warn');
       if (accepted && lastResult) reRun();
     });
+  }
+
+  /* =================================================================== */
+  /*  WIDOK: TRYB NAUKI (dla studentów)                                   */
+  /* =================================================================== */
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  function viewNauka(vr) {
+    const acc = learn.answered ? Math.round((learn.correct / learn.answered) * 100) : 0;
+    vr.innerHTML = `
+      <div class="page-head"><h1 class="serif">Tryb nauki</h1>
+        <p>Ćwicz rozumowanie kliniczne na przypadkach, utrwalaj skale i obserwuj postępy. Idealne na dyżur, zajęcia i egzamin.</p></div>
+
+      <div class="grid-4 mb-5">
+        <div class="card stat"><div class="ico">${svg(I.spark, 18)}</div><div class="v tnum">${learn.answered}</div><div class="k">rozwiązanych</div></div>
+        <div class="card stat"><div class="ico">${svg(I.check, 18)}</div><div class="v tnum">${acc}%</div><div class="k">skuteczność</div></div>
+        <div class="card stat"><div class="ico">${svg(I.activity, 18)}</div><div class="v tnum">${learn.streak}</div><div class="k">aktualna passa</div></div>
+        <div class="card stat"><div class="ico">${svg(I.trophy, 18)}</div><div class="v tnum">${learn.best}</div><div class="k">najlepsza passa</div></div>
+      </div>
+
+      <div class="flex gap-2 mb-5 wrap">
+        <button class="chip is-active" data-ntab="quiz">${svg(I.spark, 15)} Quiz przypadków</button>
+        <button class="chip" data-ntab="cards">${svg(I.baza, 15)} Fiszki skal</button>
+        <button class="chip" data-ntab="progress">${svg(I.trophy, 15)} Twój postęp</button>
+      </div>
+      <div id="naukaBody"></div>`;
+
+    const body = document.getElementById('naukaBody');
+    let tab = 'quiz';
+    vr.querySelectorAll('[data-ntab]').forEach(b => b.addEventListener('click', () => {
+      vr.querySelectorAll('[data-ntab]').forEach(x => x.classList.remove('is-active')); b.classList.add('is-active');
+      tab = b.dataset.ntab; ({ quiz: paintQuiz, cards: paintCards, progress: paintProgress }[tab])();
+    }));
+    paintQuiz();
+
+    /* ---------- QUIZ ---------- */
+    let current = null;
+    function paintQuiz() {
+      const c = pickCase();
+      const pres = E.getPresentation(c.pres);
+      const correct = pres.diagnoses.find(d => d.id === c.dx);
+      const distract = shuffle(pres.diagnoses.filter(d => d.id !== c.dx)).slice(0, 3);
+      const opts = shuffle([correct, ...distract]);
+      body.innerHTML = `
+        <div class="card card-pad fade-up">
+          <div class="flex items-center justify-between mb-3"><span class="badge badge-accent">${svg(presIcon(c.pres), 14)} ${pres.label}</span>
+            <span class="hint">Wybierz najbardziej prawdopodobne rozpoznanie</span></div>
+          <p class="lead" style="font-size:var(--fs-md)">${esc(c.text)}</p>
+          <div class="flex col gap-2 mt-5" id="quizOpts">
+            ${opts.map(o => `<button class="btn btn-ghost" style="justify-content:flex-start;text-align:left" data-opt="${o.id}">${esc(o.name)}</button>`).join('')}
+          </div>
+          <div id="quizReveal"></div>
+        </div>`;
+      document.getElementById('quizOpts').querySelectorAll('[data-opt]').forEach(b =>
+        b.addEventListener('click', () => answer(b.dataset.opt, c, correct)));
+    }
+    function pickCase() {
+      const cs = D.teachingCases; let c;
+      do { c = cs[Math.floor(Math.random() * cs.length)]; } while (cs.length > 1 && c === current);
+      current = c; return c;
+    }
+    function answer(chosen, c, correct) {
+      const ok = chosen === c.dx;
+      learn.answered++; if (ok) { learn.correct++; learn.streak++; learn.best = Math.max(learn.best, learn.streak); } else learn.streak = 0;
+      learn.byPres[c.pres] = learn.byPres[c.pres] || { a: 0, c: 0 }; learn.byPres[c.pres].a++; if (ok) learn.byPres[c.pres].c++;
+      store.set(KEY.learn, learn);
+
+      document.getElementById('quizOpts').querySelectorAll('[data-opt]').forEach(b => {
+        b.disabled = true;
+        if (b.dataset.opt === c.dx) { b.classList.remove('btn-ghost'); b.style.background = 'var(--ok-soft)'; b.style.borderColor = 'var(--ok-border)'; b.style.color = 'var(--ok)'; }
+        else if (b.dataset.opt === chosen) { b.style.background = 'var(--crit-soft)'; b.style.borderColor = 'var(--crit-border)'; b.style.color = 'var(--crit)'; }
+      });
+
+      // jak rozumuje silnik (z lekkim wykryciem wieku/płci z opisu)
+      const ext = E.extractFindings(c.text);
+      const extra = [];
+      const am = c.text.match(/(\d{1,3})\s*l(?:\.|at|ata)?\b/);
+      if (am) { const age = +am[1]; if (age >= 65) extra.push('age_ge_65', 'age_ge_50'); else if (age >= 50) extra.push('age_ge_50'); else if (age < 40) extra.push('age_lt_40'); }
+      if (/mężczyzn|chłopiec/i.test(c.text)) extra.push('male');
+      if (/kobiet|dziewczyn/i.test(c.text)) extra.push('female');
+      const fids = [...new Set([...ext.present, ...extra])].filter(id => D.findings[id]);
+      const res = E.analyze({ presentationId: c.pres, findingIds: fids, context: (E.getPresentation(c.pres).contexts || ['SOR'])[0], corrections });
+      const top = res.results.slice(0, 3).map(r => `<div class="flex items-center justify-between mb-1"><span class="small">${r.dx.cantMiss ? '⚠ ' : ''}${esc(r.dx.name)}</span><b class="tnum small">${r.share.toFixed(0)}%</b></div>`).join('');
+
+      document.getElementById('quizReveal').innerHTML = `
+        <div class="alert ${ok ? 'alert-ok' : 'alert-crit'} mt-4">${svg(ok ? I.check : I.x, 16, 'alert-icon')}
+          <span><b>${ok ? 'Dobrze!' : 'Niepoprawnie.'}</b> Poprawna odpowiedź: <b>${esc(correct.name)}</b>.</span></div>
+        <div class="alert alert-info mt-2">${svg(I.spark, 16, 'alert-icon')}<span><b>Perełka kliniczna:</b> ${esc(c.pearl)}</span></div>
+        <div class="card card-pad mt-3" style="background:var(--bg-sunken)">
+          <div class="label mb-2">Jak rozumuje silnik Differo na tym opisie</div>${top}
+          ${res.redFlags.length ? `<div class="alert alert-crit mt-2" style="font-size:var(--fs-xs)">${svg(I.flag, 13, 'alert-icon')}<span>${res.redFlags.map(f => esc(f.label)).join('; ')}</span></div>` : ''}
+        </div>
+        <button class="btn btn-primary mt-4" id="quizNext">Następny przypadek →</button>`;
+      document.getElementById('quizNext').addEventListener('click', () => {
+        // odśwież liczniki u góry bez pełnego przeładowania
+        paintQuiz();
+        updateStatsBar();
+      });
+    }
+    function updateStatsBar() {
+      const a2 = learn.answered ? Math.round((learn.correct / learn.answered) * 100) : 0;
+      const stats = vr.querySelectorAll('.grid-4 .stat .v');
+      if (stats.length === 4) { stats[0].textContent = learn.answered; stats[1].textContent = a2 + '%'; stats[2].textContent = learn.streak; stats[3].textContent = learn.best; }
+    }
+
+    /* ---------- FISZKI SKAL ---------- */
+    function paintCards() {
+      body.innerHTML = `<div class="kb-grid">${Object.entries(D.scores).map(([id, sc]) => {
+        let min = 0, max = 0;
+        sc.items.forEach(it => { const vals = it.options.map(o => o[1]); min += Math.min(...vals); max += Math.max(...vals); });
+        const lo = sc.interpret(min), hi = sc.interpret(max);
+        return `<div class="card" style="perspective:1000px;cursor:pointer" data-flip>
+          <div class="card-pad" data-front>
+            <div class="flex items-center justify-between mb-2"><h4 class="serif" style="font-size:var(--fs-md)">${esc(sc.name)}</h4>${svg(I.baza, 16)}</div>
+            <p class="muted small">${esc(sc.subtitle)}</p>
+            <p class="hint mt-4">Kliknij, aby zobaczyć składowe i interpretację →</p>
+          </div>
+          <div class="card-pad hidden" data-back>
+            <h4 class="serif mb-2" style="font-size:var(--fs-md)">${esc(sc.name)}</h4>
+            <div class="label mb-1">Składowe</div>
+            <ul class="small" style="margin-bottom:10px">${sc.items.map(it => `<li>${esc(it.label)}</li>`).join('')}</ul>
+            <div class="alert alert-ok" style="font-size:var(--fs-xs);margin-bottom:6px">${svg(I.check, 13, 'alert-icon')}<span>Niski: ${esc(lo.text)}</span></div>
+            <div class="alert alert-crit" style="font-size:var(--fs-xs)">${svg(I.flag, 13, 'alert-icon')}<span>Wysoki: ${esc(hi.text)}</span></div>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+      body.querySelectorAll('[data-flip]').forEach(card => card.addEventListener('click', () => {
+        card.querySelector('[data-front]').classList.toggle('hidden');
+        card.querySelector('[data-back]').classList.toggle('hidden');
+      }));
+    }
+
+    /* ---------- POSTĘP ---------- */
+    function paintProgress() {
+      const a = learn.answered, accNow = a ? Math.round((learn.correct / a) * 100) : 0;
+      const badges = [
+        { id: 'start', t: 'Pierwszy krok', d: 'Rozwiąż 1 przypadek', got: a >= 1, ic: I.spark },
+        { id: 'ten', t: 'Dziesiątka', d: 'Rozwiąż 10 przypadków', got: a >= 10, ic: I.check },
+        { id: 'streak5', t: 'Seria 5', d: 'Passa 5 z rzędu', got: learn.best >= 5, ic: I.activity },
+        { id: 'expert', t: 'Diagnosta', d: '≥20 przypadków i ≥80% trafień', got: a >= 20 && accNow >= 80, ic: I.shield },
+        { id: 'streak10', t: 'Mistrz passy', d: 'Passa 10 z rzędu', got: learn.best >= 10, ic: I.trophy },
+        { id: 'all', t: 'Pełen przegląd', d: 'Spróbuj wszystkich ścieżek', got: Object.keys(learn.byPres).length >= D.presentations.length, ic: I.baza },
+      ];
+      body.innerHTML = `
+        <div class="card card-pad mb-5">
+          <h3 class="serif mb-4" style="font-size:var(--fs-lg)">Odznaki</h3>
+          <div class="grid-3">${badges.map(b => `
+            <div class="card card-pad" style="opacity:${b.got ? 1 : .5}">
+              <div class="flex items-center gap-3"><span class="stat ico" style="margin:0;background:${b.got ? 'var(--accent-soft)' : 'var(--surface-2)'};color:${b.got ? 'var(--accent-text)' : 'var(--text-faint)'}">${svg(b.ic, 18)}</span>
+                <div><b>${esc(b.t)}</b><p class="hint">${esc(b.d)}</p></div></div>
+              <div class="mt-3">${b.got ? `<span class="badge badge-ok">${svg(I.check, 11)} zdobyte</span>` : `<span class="badge">zablokowane</span>`}</div>
+            </div>`).join('')}</div>
+        </div>
+        <div class="card card-pad">
+          <div class="flex items-center justify-between mb-4"><h3 class="serif" style="font-size:var(--fs-lg)">Skuteczność wg ścieżki</h3>
+            <button class="btn btn-subtle btn-sm" id="resetLearn">${svg(I.trash, 14)} Resetuj postęp</button></div>
+          ${Object.keys(learn.byPres).length ? D.presentations.filter(p => learn.byPres[p.id]).map(p => {
+            const s = learn.byPres[p.id]; const pc = Math.round((s.c / s.a) * 100);
+            return `<div class="mb-3"><div class="flex items-center justify-between mb-1"><span class="small">${esc(p.label)}</span><span class="hint tnum">${s.c}/${s.a} · ${pc}%</span></div>
+              <div class="prob-track"><div class="prob-fill" style="width:${pc}%"></div></div></div>`;
+          }).join('') : '<p class="muted small">Rozwiąż kilka przypadków w zakładce „Quiz przypadków”, aby zobaczyć statystyki.</p>'}
+        </div>`;
+      const rb = document.getElementById('resetLearn');
+      if (rb) rb.addEventListener('click', () => {
+        learn = { answered: 0, correct: 0, streak: 0, best: 0, byPres: {} }; store.set(KEY.learn, learn);
+        renderShell('nauka'); toast('Postęp zresetowany.');
+      });
+    }
   }
 
   /* =================================================================== */

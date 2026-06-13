@@ -667,7 +667,7 @@ DFR.data = (function () {
     // ból pleców
     back_pain:        { label: 'Ból pleców / krzyża', type: 'symptom', syn: ['bol plecow', 'ból pleców', 'ból krzyża', 'ból w krzyżu', 'bóle kręgosłupa', 'ból odcinka lędźwiowego'] },
     radicular:        { label: 'Ból korzeniowy (promieniujący do nogi)', type: 'symptom', syn: ['rwa kulszowa', 'promieniuje do nogi', 'ból korzeniowy', 'drętwienie nogi', 'promieniujący wzdłuż nogi'] },
-    saddle_anesthesia:{ label: 'Niedoczulica krocza („siodełkowa”)', type: 'sign', syn: ['znieczulenie krocza', 'niedoczulica krocza', 'okolica siodełkowa', 'drętwienie krocza'] },
+    saddle_anesthesia:{ label: 'Niedoczulica krocza („siodełkowa”)', type: 'sign', syn: ['znieczulenie krocza', 'niedoczulica krocza', 'okolica siodełkowa', 'drętwienie krocza', 'okolicy krocza', 'drętwienie okolicy krocza'] },
     urinary_retention:{ label: 'Zatrzymanie moczu', type: 'symptom', syn: ['zatrzymanie moczu', 'nie może oddać moczu', 'retencja moczu'] },
     fecal_incont:     { label: 'Nietrzymanie stolca', type: 'symptom', syn: ['nietrzymanie stolca', 'nietrzymanie kału'] },
     bilateral_leg_weak:{ label: 'Obustronne osłabienie kończyn dolnych', type: 'sign', syn: ['osłabienie obu nóg', 'niedowład obu kończyn dolnych', 'osłabienie kończyn dolnych'] },
@@ -687,8 +687,8 @@ DFR.data = (function () {
 
     // zawroty głowy
     vertigo_sym:      { label: 'Zawroty głowy', type: 'symptom', syn: ['zawroty głowy', 'zawroty', 'kręci się w głowie', 'uczucie wirowania'] },
-    positional_vertigo:{ label: 'Zawroty zależne od pozycji', type: 'symptom', syn: ['zawroty przy zmianie pozycji', 'zawroty przy obracaniu głowy', 'pozycyjne zawroty', 'przy kładzeniu się'] },
-    rotatory_vertigo: { label: 'Zawroty wirowe', type: 'symptom', syn: ['wirujące zawroty', 'zawroty wirowe', 'wszystko wiruje'] },
+    positional_vertigo:{ label: 'Zawroty zależne od pozycji', type: 'symptom', syn: ['zawroty przy zmianie pozycji', 'zawroty przy obracaniu głowy', 'pozycyjne zawroty', 'przy kładzeniu się', 'zmianą pozycji', 'przy zmianie pozycji głowy'] },
+    rotatory_vertigo: { label: 'Zawroty wirowe', type: 'symptom', syn: ['wirujące zawroty', 'zawroty wirowe', 'wszystko wiruje', 'wirowania', 'napady wirowania', 'wiruje'] },
     hearing_loss:     { label: 'Niedosłuch / utrata słuchu', type: 'symptom', syn: ['niedosłuch', 'utrata słuchu', 'pogorszenie słuchu', 'gorzej słyszy'] },
     tinnitus:         { label: 'Szum w uszach', type: 'symptom', syn: ['szum w uszach', 'dzwonienie w uszach', 'tinnitus'] },
     nystagmus:        { label: 'Oczopląs', type: 'sign', syn: ['oczopląs', 'nystagmus'] },
@@ -963,6 +963,49 @@ DFR.data = (function () {
     },
   });
 
+  /* ------------------------------------------------------------------ */
+  /* 5) PRZYPADKI DYDAKTYCZNE (tryb nauki dla studentów)                 */
+  /*    pres: ścieżka, dx: poprawne rozpoznanie, pearl: punkt nauczania  */
+  /* ------------------------------------------------------------------ */
+  const teachingCases = [
+    { pres: 'chest_pain', dx: 'acs', text: 'Mężczyzna 64 l., od 1 h gniotący ból zamostkowy przy wysiłku, promieniujący do lewej ręki, zlewne poty, nudności. Nadciśnienie, pali.', pearl: 'Ból wysiłkowy + promieniowanie + zlewne poty u pacjenta z czynnikami ryzyka — najpierw wyklucz ACS: EKG ≤10 min i troponina.' },
+    { pres: 'chest_pain', dx: 'aortic', text: 'Mężczyzna 70 l., nagły, rozdzierający ból w klatce promieniujący do pleców, różnica ciśnień między kończynami górnymi.', pearl: 'Ból rozdzierający promieniujący do pleców + różnica RR → rozwarstwienie aorty. Angio-TK, nie zwlekać.' },
+    { pres: 'chest_pain', dx: 'pe', text: 'Kobieta 38 l., nagła duszność i ból opłucnowy, tachykardia, jednostronny obrzęk łydki. Antykoncepcja, niedawny długi lot.', pearl: 'Duszność + ból opłucnowy + objawy ZŻG + czynniki ryzyka → policz Wells i rozważ zatorowość.' },
+
+    { pres: 'abdo_pain', dx: 'appendicitis', text: 'Mężczyzna 22 l., ból rozpoczął się wokół pępka, przemieścił do prawego dołu biodrowego, brak apetytu, stan podgorączkowy, dodatni objaw Blumberga.', pearl: 'Migracja bólu do PDB + anoreksja + objaw otrzewnowy → skala Alvarado, konsultacja chirurgiczna.' },
+    { pres: 'abdo_pain', dx: 'renal_colic', text: 'Mężczyzna 45 l., napadowy, falujący ból w okolicy lędźwiowej promieniujący do pachwiny, krwiomocz, niepokój ruchowy.', pearl: 'Ból kolkowy lędźwiowy + krwiomocz + pacjent „nie może znaleźć pozycji” → kamica; TK low-dose.' },
+    { pres: 'abdo_pain', dx: 'aaa', text: 'Mężczyzna 72 l., nagły ból brzucha i pleców, hipotensja, wyczuwalny tętniący opór w nadbrzuszu.', pearl: 'Tętniący opór + hipotensja + wiek → pęknięty AAA. USG przyłóżkowe, pilnie chirurgia naczyniowa.' },
+
+    { pres: 'dyspnea', dx: 'hf', text: 'Kobieta 78 l., narastająca duszność, orthopnoë, napadowa duszność nocna, obrzęki podudzi, trzeszczenia u podstawy płuc.', pearl: 'Orthopnoë + PND + obrzęki + trzeszczenia → niewydolność serca; NT-proBNP, diuretyk.' },
+    { pres: 'dyspnea', dx: 'pneumonia', text: 'Mężczyzna 67 l., gorączka, kaszel z ropną plwociną, ból opłucnowy, trzeszczenia nad jednym płatem.', pearl: 'Gorączka + ropna plwocina + ogniskowe trzeszczenia → zapalenie płuc; oceń CURB-65.' },
+    { pres: 'dyspnea', dx: 'pneumothorax', text: 'Szczupły mężczyzna 24 l., nagła jednostronna duszność i ból opłucnowy, ściszenie szmeru po jednej stronie.', pearl: 'Nagła duszność + jednostronne ściszenie szmeru u młodego szczupłego mężczyzny → odma; oceń odmę prężną klinicznie.' },
+
+    { pres: 'fever', dx: 'meningitis', text: 'Kobieta 25 l., gorączka, silny ból głowy, sztywność karku, światłowstręt, narastające splątanie.', pearl: 'Gorączka + sztywność karku + światłowstręt → zapalenie opon; antybiotyk empiryczny natychmiast.' },
+    { pres: 'fever', dx: 'sepsis', text: 'Mężczyzna 70 l., gorączka z dreszczami, tachypnoë, hipotensja, splątanie. Cewnik moczowy.', pearl: 'Zakażenie + dysfunkcja narządowa (qSOFA ≥2) → sepsa; pakiet „Hour-1”.' },
+
+    { pres: 'headache', dx: 'sah', text: 'Kobieta 49 l., nagły, „najgorszy ból głowy w życiu”, osiągnął szczyt w sekundy, wymioty, sztywność karku.', pearl: 'Ból piorunujący „najgorszy w życiu” → krwotok podpajęczynówkowy; pilna TK, ew. PL.' },
+    { pres: 'headache', dx: 'gca', text: 'Kobieta 72 l., nowy ból głowy w okolicy skroni, ból przy żuciu, tkliwa tętnica skroniowa, przejściowe zaniewidzenie.', pearl: 'Wiek ≥50 + chromanie żuchwy + objawy wzrokowe → olbrzymiokomórkowe zapalenie tętnic; OB/CRP, steroidy pilnie.' },
+    { pres: 'headache', dx: 'migraine', text: 'Kobieta 28 l., nawracający jednostronny pulsujący ból głowy, mroczki przed bólem, nudności, światłowstręt.', pearl: 'Jednostronny pulsujący ból + aura + foto/fonofobia → migrena (kryteria ICHD-3).' },
+
+    { pres: 'syncope', dx: 'cardiac_syncope', text: 'Mężczyzna 68 l., omdlenie podczas wysiłku, bez objawów zwiastunowych, kołatanie wcześniej. Choroba wieńcowa.', pearl: 'Omdlenie wysiłkowe i bez prodromów → wysokie ryzyko kardiogenne; EKG, echo, telemetria.' },
+    { pres: 'syncope', dx: 'vasovagal', text: 'Studentka 20 l., zasłabła po długim staniu w upale, z poprzedzającymi nudnościami i zlewnymi potami, szybki powrót do pełnej świadomości.', pearl: 'Sytuacyjny wyzwalacz + prodromy + szybki powrót → omdlenie wazowagalne; edukacja.' },
+
+    { pres: 'back_pain', dx: 'cauda_equina', text: 'Mężczyzna 52 l., silny ból krzyża, drętwienie okolicy krocza, zatrzymanie moczu i osłabienie obu nóg.', pearl: 'Niedoczulica „siodełkowa” + zatrzymanie moczu → zespół ogona końskiego; pilne MR i neurochirurg.' },
+    { pres: 'back_pain', dx: 'spinal_infection', text: 'Mężczyzna 40 l., narastający ból pleców, gorączka, poty nocne; przyjmuje substancje dożylnie.', pearl: 'Ból pleców + gorączka + iniekcje dożylne → infekcja kręgosłupa/ropień; MR, posiewy.' },
+
+    { pres: 'neuro_focal', dx: 'ischemic_stroke', text: 'Kobieta 71 l., nagłe opadnięcie kącika ust, osłabienie prawej ręki i zaburzenia mowy 40 min temu. Migotanie przedsionków.', pearl: 'Nagłe objawy FAST → ścieżka udarowa; TK, czas = mózg (okno trombolizy/trombektomii).' },
+    { pres: 'neuro_focal', dx: 'hypoglycemia_neuro', text: 'Mężczyzna 60 l. z cukrzycą na insulinie: nagłe splątanie i niedowład, zlewne poty.', pearl: 'Zawsze sprawdź glikemię przed rozpoznaniem udaru — hipoglikemia świetnie go naśladuje.' },
+
+    { pres: 'gi_bleed', dx: 'variceal', text: 'Mężczyzna 55 l. z marskością wątroby: obfite wymioty krwią, smoliste stolce, hipotensja, tachykardia.', pearl: 'Krwawe wymioty + marskość → żylaki przełyku; lek wazoaktywny, antybiotyk, pilna endoskopia.' },
+    { pres: 'gi_bleed', dx: 'peptic_ulcer', text: 'Mężczyzna 63 l., smoliste stolce i ból w nadbrzużu; od tygodni przyjmuje NLPZ.', pearl: 'Melena + NLPZ + ból w nadbrzuszu → krwawiący wrzód; IPP i.v., gastroskopia.' },
+
+    { pres: 'vertigo', dx: 'central_vertigo', text: 'Mężczyzna 69 l., nagłe wirujące zawroty z niezbornością, oczopląsem i niemożnością chodzenia. Nadciśnienie.', pearl: 'Zawroty + objawy ośrodkowe (ataksja, niemożność chodu) → udar pnia/móżdżku; MR-DWI (TK często ujemne).' },
+    { pres: 'vertigo', dx: 'bppv', text: 'Kobieta 50 l., krótkie napady wirowania wywoływane zmianą pozycji głowy, bez objawów neurologicznych.', pearl: 'Krótkie, pozycyjne napady bez objawów ośrodkowych → BPPV; manewr Dix-Hallpike’a i repozycja Epleya.' },
+
+    { pres: 'febrile_child', dx: 'meningitis_peds', text: 'Niemowlę: gorączka, apatia, słabe karmienie, uwypuklone ciemiączko, wybroczyny na skórze.', pearl: 'Wybroczyny + uwypuklone ciemiączko + apatia → neuroinfekcja/sepsa; antybiotyk natychmiast.' },
+    { pres: 'febrile_child', dx: 'otitis_media', text: 'Dziecko 3 l., gorączka, rozdrażnienie, pociąga się za ucho, w otoskopii uwypuklona błona bębenkowa.', pearl: 'Ból ucha + uwypuklona błona → ostre zapalenie ucha; leczenie p/bólowe, antybiotyk wg wskazań.' },
+  ];
+
   /* expose */
-  return { findings: F, presentations, scores };
+  return { findings: F, presentations, scores, teachingCases };
 })();
