@@ -195,8 +195,8 @@
 
     let role = 'Lekarz';
     const ROLE_DESC = {
-      Lekarz: 'Pełny dostęp: różnicowanie ze szczegółami postępowania i dawkowania oraz eksport raportu klinicznego.',
-      Student: 'Dostęp edukacyjny: pełny tryb nauki, baza wiedzy, ćwiczenie wywiadów z różnicowaniem oraz zgłaszanie poprawek — bez szczegółów postępowania i eksportu raportu klinicznego.',
+      Lekarz: 'Pełny dostęp, w tym eksport raportu klinicznego (dokument).',
+      Student: 'Dostęp edukacyjny: tryb nauki, baza wiedzy, ćwiczenie wywiadów z różnicowaniem i postępowaniem (z adnotacją do weryfikacji) oraz zgłaszanie poprawek — bez eksportu raportu klinicznego.',
     };
     const roleDesc = document.getElementById('roleDesc');
     roleDesc.textContent = ROLE_DESC[role];
@@ -580,14 +580,14 @@
           <div class="driver-list">${drv}</div>
           <div class="dx-detail">
             <h5>Zalecane badania</h5><ul>${(r.dx.tests || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-            <h5>Postępowanie</h5>${isDoctor() ? `<ul>${(r.dx.management || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : `<div class="alert alert-info" style="font-size:var(--fs-xs)">${svg(I.shield, 13, 'alert-icon')}<span>Szczegóły postępowania i dawkowanie — dostępne w koncie klinicysty. <a href="#" data-gate>Dowiedz się więcej →</a></span></div>`}
+            <h5>Postępowanie</h5><ul>${(r.dx.management || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+            ${isDoctor() ? '' : `<div class="alert alert-info" style="font-size:var(--fs-xs)">${svg(I.info, 13, 'alert-icon')}<span><b>Edukacyjnie</b> — dawki i schematy zweryfikuj z aktualnymi wytycznymi i ChPL przed zastosowaniem.</span></div>`}
             <h5>Źródła</h5><p class="source-tag">${(r.dx.sources || []).map(esc).join(' · ')}</p>
             <p class="hint mt-2">P. wyjściowe (${esc(lastInput.demographics.ctx)}): ${(r.prior * 100).toFixed(1)}% → po uwzględnieniu znalezisk udział ${r.share.toFixed(0)}%.</p>
           </div>
         </div>`;
     }).join('');
     list.querySelectorAll('[data-toggle]').forEach(h => h.addEventListener('click', () => h.closest('.result-dx').classList.toggle('open')));
-    list.querySelectorAll('[data-gate]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); clinicianGate('Szczegóły postępowania klinicznego'); }));
   }
 
   /* --------- kalkulatory skal (interaktywne) --------- */
@@ -743,7 +743,8 @@
       <h5 class="label mb-2">Prawdopodobieństwo wyjściowe (kontekst)</h5>
       <div class="flex wrap gap-2 mb-4">${Object.entries(d.prior || {}).map(([k, v]) => `<span class="chip" style="cursor:default">${esc(k)}: ${(v * 100).toFixed(1)}%</span>`).join('')}</div>
       <h5 class="label mb-2">Zalecane badania</h5><ul class="small mb-4">${(d.tests || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
-      <h5 class="label mb-2">Postępowanie</h5>${isDoctor() ? `<ul class="small mb-4">${(d.management || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : `<div class="alert alert-info mb-4" style="font-size:var(--fs-xs)">${svg(I.shield, 13, 'alert-icon')}<span>Szczegóły postępowania i dawkowanie dostępne w koncie klinicysty.</span></div>`}
+      <h5 class="label mb-2">Postępowanie</h5><ul class="small mb-4">${(d.management || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+      ${isDoctor() ? '' : `<div class="alert alert-info mb-4" style="font-size:var(--fs-xs)">${svg(I.info, 13, 'alert-icon')}<span><b>Edukacyjnie</b> — zweryfikuj dawki z aktualnymi wytycznymi i ChPL.</span></div>`}
       <h5 class="label mb-2">Źródła</h5><p class="source-tag">${(d.sources || []).map(esc).join(' · ')}</p>`,
       `<button class="btn btn-ghost" data-close>Zamknij</button>`);
   }
@@ -1067,8 +1068,8 @@
             ['Tryb nauki (quiz, fiszki, postęp)', true],
             ['Baza wiedzy', true],
             ['Wywiad: różnicowanie, czerwone flagi, badania', true],
+            ['Szczegóły postępowania i dawkowanie', true],
             ['Zgłaszanie i współtworzenie korekt', true],
-            ['Szczegóły postępowania i dawkowanie', isDoctor()],
             ['Eksport raportu klinicznego', isDoctor()],
           ].map(([t, on]) => `<div class="flex items-center gap-2 mb-2" style="font-size:var(--fs-sm);color:${on ? 'var(--text-soft)' : 'var(--text-faint)'}">
             <span style="color:${on ? 'var(--ok)' : 'var(--text-faint)'}">${svg(on ? I.check : I.shield, 15)}</span> ${esc(t)}</div>`).join('')}
