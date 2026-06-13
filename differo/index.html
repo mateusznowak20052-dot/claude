@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Differo — kliniczny system wsparcia decyzji dla lekarzy i studentów medycyny</title>
+  <meta name="description" content="Od wywiadu do uporządkowanej listy hipotez w kilkanaście sekund. Przejrzysty silnik różnicowania oparty na walidowanych skalach klinicznych. Narzędzie wyłącznie dla profesjonalistów." />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/landing.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230E7C86'/%3E%3Cpath d='M16 7v18M9 13l7-6 7 6' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <script>
+    // ustaw motyw zanim wyrenderuje się strona (bez migotania)
+    (function () {
+      try {
+        var t = localStorage.getItem('dfr-theme');
+        if (t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches))
+          document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <div class="disclaimer-banner">
+    Narzędzie wsparcia decyzji dla profesjonalistów. Nie jest wyrobem medycznym ani źródłem diagnozy. Nie wprowadzaj danych identyfikujących pacjenta.
+  </div>
+
+  <!-- NAWIGACJA -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 32 32"><path d="M16 7v18M9 13l7-6 7 6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Differo
+      </a>
+      <nav class="nav-links">
+        <a href="#jak" class="hide-sm">Jak działa</a>
+        <a href="#dowody" class="hide-sm">Dowody i metodyka</a>
+        <a href="#bezpieczenstwo" class="hide-sm">Bezpieczeństwo</a>
+        <a href="#cennik" class="hide-sm">Cennik</a>
+      </nav>
+      <div class="nav-cta">
+        <button class="theme-toggle" id="themeToggle" title="Tryb jasny/ciemny" aria-label="Przełącz motyw">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg>
+        </button>
+        <a class="btn btn-ghost btn-sm" href="app.html">Zaloguj się</a>
+        <a class="btn btn-primary btn-sm" href="app.html#wywiad">Wypróbuj</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO + DEMO -->
+  <section class="hero">
+    <div class="fade-up">
+      <span class="eyebrow">Kliniczny system wsparcia decyzji</span>
+      <h1>Od wywiadu do uporządkowanej listy hipotez w kilkanaście sekund.</h1>
+      <p class="lead">Wpisz opis przypadku w naturalnym języku. Differo rozłoży go na znaleziska, zestawi z walidowanymi skalami i pokaże różnicowanie — z jawnym uzasadnieniem, czerwonymi flagami i zalecaną diagnostyką. Bez czarnej skrzynki.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="app.html#wywiad">Otwórz aplikację</a>
+        <a class="btn btn-ghost btn-lg" href="#jak">Zobacz, jak działa</a>
+      </div>
+      <div class="hero-meta">
+        <span><b>6</b> ścieżek klinicznych w prototypie</span>
+        <span><b>6</b> walidowanych skal (HEART, Wells…)</span>
+        <span><b>100%</b> wyjaśnialne wyniki</span>
+      </div>
+    </div>
+
+    <div class="demo fade-up" style="animation-delay:.08s">
+      <div class="demo-top">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="small muted">Differo · żywe demo</span>
+      </div>
+      <div class="demo-body">
+        <div class="demo-examples" id="demoExamples"></div>
+        <textarea class="textarea" id="demoInput" rows="3" placeholder="np. Mężczyzna, ból zamostkowy przy wysiłku promieniujący do lewej ręki, zlewne poty, nudności…"></textarea>
+        <button class="btn btn-primary btn-block mt-3" id="demoRun">Analizuj przypadek</button>
+        <div class="demo-result" id="demoResult"></div>
+        <div class="demo-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex:none;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span>Demo edukacyjne. Procenty to <b>względny udział w diagnostyce różnicowej</b> liczony z przybliżonych ilorazów wiarygodności — nie kalibrowane prawdopodobieństwo kliniczne. Pełne uzasadnienie i historia po zalogowaniu.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASEK ZAUFANIA -->
+  <div class="trust">
+    <div class="trust-inner">
+      <span class="trust-label">Oparte na uznanych skalach klinicznych</span>
+      <div class="trust-scales">
+        <span class="scale-pill">HEART</span>
+        <span class="scale-pill">Wells (ZP)</span>
+        <span class="scale-pill">CURB-65</span>
+        <span class="scale-pill">Alvarado</span>
+        <span class="scale-pill">qSOFA</span>
+        <span class="scale-pill">NEWS2</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAK DZIAŁA -->
+  <section class="section" id="jak">
+    <div class="section-head">
+      <span class="eyebrow">Architektura</span>
+      <h2>Trzy warstwy, jedna zasada: każda decyzja jest do prześledzenia.</h2>
+      <p class="lead">Rozdzielamy interpretację języka od liczenia prawdopodobieństw i od wiedzy o postępowaniu. Dzięki temu wynik jest powtarzalny, a nie „wymyślony” przez model.</p>
+    </div>
+    <div class="layers">
+      <div class="layer">
+        <span class="layer-num">01</span>
+        <h4>Interpretacja wywiadu</h4>
+        <p>Tekst zostaje rozłożony na znaleziska (objawy, znaki, czynniki ryzyka), z rozpoznawaniem negacji („bez gorączki”). Zawsze widzisz, co system wychwycił — i możesz to poprawić.</p>
+        <span class="tag">NLP regułowe, edytowalne</span>
+      </div>
+      <div class="layer">
+        <span class="layer-num">02</span>
+        <h4>Silnik różnicowania</h4>
+        <p>Rdzeń to przejrzysty scoring bayesowski: prawdopodobieństwo a priori (zależne od kontekstu i wieku) modyfikowane ilorazami wiarygodności. To nie jest LLM.</p>
+        <span class="tag">Bayes + wagi z literatury</span>
+      </div>
+      <div class="layer">
+        <span class="layer-num">03</span>
+        <h4>Warstwa kliniczna</h4>
+        <p>Do hipotez dołączamy zalecaną diagnostykę, czerwone flagi i sugerowaną skalę (np. HEART przy bólu w klatce) — zgodnie z wytycznymi.</p>
+        <span class="tag">Wytyczne i red flags</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWODY -->
+  <section class="section section-sm" id="dowody">
+    <div class="section-head">
+      <span class="eyebrow">Dowody i metodyka</span>
+      <h2>Mówimy wprost, czego wynik nie znaczy.</h2>
+      <p class="lead">Dla klinicysty wiarygodność to nie efektowne hasła, lecz jawna metoda i jej ograniczenia. Tak buduje się zaufanie — i tak projektuje się odpowiedzialne narzędzie.</p>
+    </div>
+    <div class="proof">
+      <div class="proof-list">
+        <div class="proof-row">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <div><h4>Wyjaśnialność zamiast czarnej skrzynki</h4><p>Każda hipoteza ma listę czynników, które ją podniosły lub obniżyły, wraz z ich siłą (LR). Nic nie dzieje się „w ukryciu”.</p></div>
+        </div>
+        <div class="proof-row">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 17l-6.5 3 2-7L2 9h7z"/></svg></span>
+          <div><h4>Walidowane skale w rdzeniu</h4><p>Zamiast zaczynać od zera, integrujemy skale używane na co dzień: HEART, Wells, CURB-65, Alvarado, qSOFA, NEWS2.</p></div>
+        </div>
+        <div class="proof-row">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+          <div><h4>Pokazujemy niepewność i alternatywy</h4><p>System sygnalizuje, gdy hipotezy są zbliżone lub danych jest mało — by przeciwdziałać automation bias.</p></div>
+        </div>
+        <div class="proof-row">
+          <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="M22 4 12 14l-3-3"/></svg></span>
+          <div><h4>Uczciwy status</h4><p>To prototyp edukacyjny. Pełen produkt kliniczny wymaga danych z wielu placówek, kalibracji, walidacji zewnętrznej i ścieżki MDR/CE.</p></div>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="v tnum">6</div><div class="k">ścieżki kliniczne (ból w klatce, brzucha, duszność, gorączka, ból głowy, omdlenie)</div></div>
+        <div class="metric"><div class="v tnum">110+</div><div class="k">rozpoznawanych znalezisk z synonimami PL</div></div>
+        <div class="metric"><div class="v">Bayes</div><div class="k">prior × iloraz wiarygodności, normalizacja w obrębie różnicowania</div></div>
+        <div class="metric"><div class="v">Kalibracja</div><div class="k">docelowa metryka jakości produktu — wymaga danych klinicznych</div></div>
+      </div>
+    </div>
+    <div class="alert alert-info mt-8">
+      <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <span>Metodyka docelowa dla wersji produkcyjnej: raportowanie wg <b>TRIPOD+AI</b>, ocena ryzyka błędu wg <b>PROBAST+AI</b>, zasady <b>GMLP</b> oraz ocena kalibracji, dyskryminacji (AUROC) i Brier score na danych zewnętrznych.</span>
+    </div>
+  </section>
+
+  <!-- BEZPIECZEŃSTWO -->
+  <section class="section section-sm" id="bezpieczenstwo">
+    <div class="section-head">
+      <span class="eyebrow">Bezpieczeństwo i RODO</span>
+      <h2>Zaprojektowane tak, by chronić pacjenta i Ciebie.</h2>
+    </div>
+    <div class="safe-grid">
+      <div class="card card-pad">
+        <h4 class="serif">Wbudowana ochrona przed danymi osobowymi</h4>
+        <p class="muted small mt-2">Wykrywamy i pomagamy usunąć PESEL, imiona i nazwiska, adresy, daty i numery telefonu zanim trafią do analizy. Klasyczny błąd „Pacjent Jan K., 54 lata…” zostaje zatrzymany.</p>
+      </div>
+      <div class="card card-pad">
+        <h4 class="serif">Tylko dla profesjonalistów</h4>
+        <p class="muted small mt-2">Dostęp wymaga akceptacji regulaminu i potwierdzenia roli (lekarz / student). To nie jest narzędzie do samodiagnozy.</p>
+      </div>
+      <div class="card card-pad">
+        <h4 class="serif">Brak rejestru pacjentów</h4>
+        <p class="muted small mt-2">Nie tworzymy kartoteki pacjenta. Twoja historia wywiadów to prywatny notatnik klinicysty — przechowywany lokalnie w tym prototypie.</p>
+      </div>
+      <div class="card card-pad">
+        <h4 class="serif">Współtworzona wiedza</h4>
+        <p class="muted small mt-2">Zgłaszasz, gdy różnicowanie jest błędne i dlaczego. Po weryfikacji korekta wpływa na kolejne wyniki — z zachowaniem pochodzenia zmiany.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CENNIK -->
+  <section class="section section-sm" id="cennik">
+    <div class="section-head">
+      <span class="eyebrow">Cennik</span>
+      <h2>Niski próg wejścia. Osobna taryfa studencka.</h2>
+      <p class="lead">Ceny orientacyjne dla wersji produkcyjnej. W prototypie cały dostęp jest otwarty po zalogowaniu.</p>
+    </div>
+    <div class="pricing">
+      <div class="price">
+        <span class="tier">Student</span>
+        <div class="amt">19 zł<span class="per"> / mies.</span></div>
+        <span class="per">Weryfikacja statusu studenta</span>
+        <ul>
+          <li><span class="ck">✓</span> Pełne różnicowanie i skale</li>
+          <li><span class="ck">✓</span> Historia wywiadów</li>
+          <li><span class="ck">✓</span> Tryb nauki z uzasadnieniem</li>
+        </ul>
+        <a class="btn btn-ghost btn-block" href="app.html">Zacznij</a>
+      </div>
+      <div class="price featured">
+        <span class="ribbon">Najpopularniejsze</span>
+        <span class="tier">Klinicysta</span>
+        <div class="amt">89 zł<span class="per"> / mies.</span></div>
+        <span class="per">14 dni próby, bez karty</span>
+        <ul>
+          <li><span class="ck">✓</span> Wszystko z taryfy Student</li>
+          <li><span class="ck">✓</span> Eksport i szybkie szablony</li>
+          <li><span class="ck">✓</span> Priorytetowe ścieżki SOR</li>
+          <li><span class="ck">✓</span> Zgłaszanie i współtworzenie korekt</li>
+        </ul>
+        <a class="btn btn-primary btn-block" href="app.html">Rozpocznij próbę</a>
+      </div>
+      <div class="price">
+        <span class="tier">Zespół / Instytucja</span>
+        <div class="amt">Wycena</div>
+        <span class="per">Pilotaż dla oddziału/uczelni</span>
+        <ul>
+          <li><span class="ck">✓</span> Konta zespołowe i role</li>
+          <li><span class="ck">✓</span> Wdrożenie i szkolenia</li>
+          <li><span class="ck">✓</span> Integracje (docelowo FHIR/HL7)</li>
+        </ul>
+        <a class="btn btn-ghost btn-block" href="app.html">Porozmawiajmy</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-final">
+    <span class="eyebrow">Gotowe w jednej chwili</span>
+    <h2>Wypróbuj na przypadku, który znasz na pamięć.</h2>
+    <p class="lead text-center" style="max-width:46ch;margin:0 auto var(--sp-6)">Najlepszy dowód to Twój własny przypadek. Zaloguj się i zobacz pełne różnicowanie z uzasadnieniem.</p>
+    <a class="btn btn-primary btn-lg" href="app.html">Otwórz Differo</a>
+  </section>
+
+  <!-- STOPKA -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <a class="brand" href="index.html">
+          <span class="brand-mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 32 32"><path d="M16 7v18M9 13l7-6 7 6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Differo
+        </a>
+        <p class="muted small mt-3" style="max-width:42ch">Kliniczny system wsparcia decyzji dla lekarzy i studentów medycyny. Prototyp edukacyjny — nie wyrób medyczny.</p>
+      </div>
+      <div>
+        <h5>Produkt</h5>
+        <a href="#jak">Jak działa</a>
+        <a href="#dowody">Dowody i metodyka</a>
+        <a href="#cennik">Cennik</a>
+        <a href="app.html">Aplikacja</a>
+      </div>
+      <div>
+        <h5>Prawne</h5>
+        <a href="app.html#prawne">Regulamin</a>
+        <a href="app.html#prawne">Polityka prywatności</a>
+        <a href="app.html#prawne">Informacja o wyrobie</a>
+      </div>
+    </div>
+    <div class="footer-legal">
+      © <span id="year"></span> Differo (prototyp). Treści mają charakter edukacyjny i nie zastępują oceny klinicznej. Odpowiedzialność za decyzję ponosi profesjonalista medyczny.
+    </div>
+  </footer>
+
+  <script src="assets/js/data/knowledge.js"></script>
+  <script src="assets/js/engine/engine.js"></script>
+  <script src="assets/js/landing.js"></script>
+</body>
+</html>
