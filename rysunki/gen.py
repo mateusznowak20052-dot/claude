@@ -8,13 +8,14 @@ from draw_lib import Sheet, dim_h, dim_v, leader, note, dim_dia, arrow
 from parts import draw_shaft, section_circle, P
 
 DATE = "15.06.2026"
+TOTAL = 6
 
 
 # ----------------------------------------------------------------
 def page_walek(idx, segments, total_len, dias, keyway_seg, keyway_len,
                gear_dia_label, brg_label, title, fname_dims):
     """Rysunek walka stopniowanego."""
-    sh = Sheet(part_title=title, sheet=f"{idx}/5", date=DATE, dwg_no=f"WAL-{idx:02d}",
+    sh = Sheet(part_title=title, sheet=f"{idx}/{TOTAL}", date=DATE, dwg_no=f"WAL-{idx:02d}",
                scale="1:1.5", material="Stal C45 / 45")
     s = 1 / 1.5                      # skala 1:1.5
     cy = 205
@@ -96,7 +97,7 @@ def page_walek(idx, segments, total_len, dias, keyway_seg, keyway_len,
 def page_klin(idx):
     """Wpust pryzmatyczny (klin) 16x10 wg PN-70/M-85005, forma A (zaokraglony)."""
     title = "WPUST 16x10  (PN-70/M-85005)"
-    sh = Sheet(part_title=title, sheet=f"{idx}/5", date=DATE, dwg_no=f"WPU-{idx:02d}",
+    sh = Sheet(part_title=title, sheet=f"{idx}/{TOTAL}", date=DATE, dwg_no=f"WPU-{idx:02d}",
                scale="2,5:1", material="Stal C45")
     b, h, L = P["b_klin"], P["h_klin"], 50.0
     s = 2.5                                # skala 2,5:1
@@ -147,7 +148,7 @@ def page_klin(idx):
 def page_scianka(idx):
     """Sciana przednia przekladni z gniazdami lozysk."""
     title = "ŚCIANA PRZEDNIA OBUDOWY"
-    sh = Sheet(part_title=title, sheet=f"{idx}/5", date=DATE, dwg_no=f"SCP-{idx:02d}",
+    sh = Sheet(part_title=title, sheet=f"{idx}/{TOTAL}", date=DATE, dwg_no=f"SCP-{idx:02d}",
                scale="1:2", material="Żeliwo EN-GJL-200")
     s = 0.5                                  # 1:2
     Wp = P["dl_prz"]      # 362 dlugosc
@@ -205,7 +206,7 @@ def page_scianka(idx):
 def page_podstawa(idx):
     """Podstawa (dolna czesc obudowy) - plyta z otworami."""
     title = "PODSTAWA OBUDOWY"
-    sh = Sheet(part_title=title, sheet=f"{idx}/5", date=DATE, dwg_no=f"POD-{idx:02d}",
+    sh = Sheet(part_title=title, sheet=f"{idx}/{TOTAL}", date=DATE, dwg_no=f"POD-{idx:02d}",
                scale="1:2", material="Żeliwo EN-GJL-200")
     s = 0.45
     W = P["szer_pod"]    # 366
@@ -247,6 +248,76 @@ def page_podstawa(idx):
 
 
 # ----------------------------------------------------------------
+def page_gorna(idx):
+    """Gorna czesc obudowy (pokrywa) - widok z gory + widok z przodu (przekroj)."""
+    import math
+    title = "GÓRNA CZĘŚĆ OBUDOWY (pokrywa)"
+    sh = Sheet(part_title=title, sheet=f"{idx}/{TOTAL}", date=DATE, dwg_no=f"GOR-{idx:02d}",
+               scale="1:2", material="Żeliwo EN-GJL-200")
+    s = 0.45
+    W = P["szer_pod"]      # 366 - dlugosc kolnierza (wzdluz scian przednich)
+    Dp = 204.0             # glebokosc (dl_bok + 2*gr_bok = 154+50)
+    Hg = 90.0              # wysokosc pokrywy od plaszczyzny podzialu do dachu
+    th = P["gr_gor"]       # 25 grubosc scianki
+    aw = (P["dp1"] + P["dp2"]) / 2          # 126 rozstaw osi
+    rb1 = P["d_loz1"] / 2 * s
+    rb2 = P["d_loz2"] / 2 * s
+
+    # ---------- WIDOK Z GORY ----------
+    cx, cy = 150, 205
+    x0 = cx - W / 2 * s; x1 = cx + W / 2 * s
+    y0 = cy - Dp / 2 * s; y1 = cy + Dp / 2 * s
+    sh.ax.add_patch(plt.Rectangle((x0, y0), W * s, Dp * s, fill=False, lw=D.LW_VISIBLE, ec="k"))
+    # gniazda lozysk
+    b1 = (cx - aw / 2 * s, cy); b2 = (cx + aw / 2 * s, cy)
+    sh.circle(b1, rb1); sh.center_cross(b1, rb1)
+    sh.circle(b2, rb2); sh.center_cross(b2, rb2)
+    # otwory laczace M5 wzdluz kolnierza (rzad gora/dol)
+    for dx in np.linspace(x0 + 14 * s, x1 - 14 * s, 6):
+        sh.circle((dx, y0 + 10 * s), 2.6 * s)
+        sh.circle((dx, y1 - 10 * s), 2.6 * s)
+    # otwory wokol gniazd
+    for c, rr in ((b1, rb1 + 8 * s), (b2, rb2 + 8 * s)):
+        for a in (60, 120, 240, 300):
+            sh.circle((c[0] + rr * math.cos(math.radians(a)),
+                       c[1] + rr * math.sin(math.radians(a))), 2.6 * s)
+    note(sh, cx, y1 + 24, "WIDOK Z GÓRY (1:2)", fs=10, ha="center")
+    dim_h(sh, x0, x1, y0, y0 - 16, f"{W:g}")
+    dim_v(sh, y0, y1, x0, x0 - 14, f"{Dp:g}")
+    dim_h(sh, b1[0], b2[0], cy, y1 + 12, f"{aw:g}")
+    leader(sh, (b1[0] - rb1 * 0.7, b1[1] + rb1 * 0.7), (b1[0] - 26, b1[1] + 34),
+           f"Ø{P['d_loz1']:g} H7", ha="left")
+    leader(sh, (b2[0] + rb2 * 0.7, b2[1] + rb2 * 0.7), (b2[0] + 26, b2[1] + 34),
+           f"Ø{P['d_loz2']:g} H7", ha="left")
+
+    # ---------- WIDOK Z PRZODU (zarys pokrywy) ----------
+    fy = 95
+    fx0 = cx - W / 2 * s; fx1 = cx + W / 2 * s
+    fb = fy                      # plaszczyzna podzialu (dol)
+    ft = fy + Hg * s             # dach
+    t = th * s
+    # zarys zewnetrzny: U odwrocone (dach + sciany), otwarty dol = kolnierz
+    sh.polyline([(fx0, fb), (fx0, ft), (fx1, ft), (fx1, fb)])
+    # wewnetrzny zarys (grubosc scian)
+    sh.polyline([(fx0 + t, fb), (fx0 + t, ft - t), (fx1 - t, ft - t), (fx1 - t, fb)])
+    # plaszczyzna podzialu (linia kolnierza)
+    sh.line((fx0 - 6, fb), (fx1 + 6, fb), lw=D.LW_CENTER, ls=(0, (12, 3, 2, 3)))
+    # polowki gniazd lozysk na plaszczyznie podzialu
+    bx1 = cx - aw / 2 * s; bx2 = cx + aw / 2 * s
+    sh.ax.add_patch(D.Arc((bx1, fb), P["d_loz1"] * s, P["d_loz1"] * s,
+                          theta1=0, theta2=180, lw=D.LW_VISIBLE, ec="k"))
+    sh.ax.add_patch(D.Arc((bx2, fb), P["d_loz2"] * s, P["d_loz2"] * s,
+                          theta1=0, theta2=180, lw=D.LW_VISIBLE, ec="k"))
+    note(sh, cx, fb - 14, "WIDOK Z PRZODU (1:2)", fs=10, ha="center")
+    dim_v(sh, fb, ft, fx1, fx1 + 12, f"{Hg:g}")
+    leader(sh, (fx1 - t / 2, ft - t / 2), (fx1 + 20, ft + 8), f"gr. ścianki {th:g}", ha="left")
+    note(sh, fx0 - 4, fb - 8, "płaszczyzna podziału", fs=8, ha="left")
+    note(sh, 60, 50, "Materiał: żeliwo EN-GJL-200   |   Łączenie z podstawą śrubami M5",
+         fs=9, ha="left")
+    return sh
+
+
+# ----------------------------------------------------------------
 def build():
     pages = []
     # Walek 1: Ø45/48/50, total 311
@@ -265,8 +336,10 @@ def build():
                             title="WAŁEK 2 (wałek koła)", fname_dims=None))
     # Podstawa
     pages.append(page_podstawa(5))
+    # Gorna czesc obudowy
+    pages.append(page_gorna(6))
 
-    with PdfPages("/home/user/claude/rysunki/przekladnia_5_czesci.pdf") as pdf:
+    with PdfPages("/home/user/claude/rysunki/przekladnia_6_czesci.pdf") as pdf:
         for sh in pages:
             pdf.savefig(sh.fig)
     # zapisz tez podglady PNG
