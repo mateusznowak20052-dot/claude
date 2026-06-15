@@ -244,26 +244,26 @@ def page_key(name, title, dwg, scale, sheet_no, material="Stal C45"):
 
 def build():
     pages = []
-    pages.append(page_shaft('walek1', "WAŁEK 1 (zębnika)", "WAL-01", 1/1.5, "1/8"))
-    pages.append(page_shaft('walek2', "WAŁEK 2 (koła)", "WAL-02", 1/1.5, "2/8"))
+    pages.append(page_shaft('walek1', "WAŁEK 1 (zębnika)", "WAL-01", 1/1.5, "2/9"))
+    pages.append(page_shaft('walek2', "WAŁEK 2 (koła)", "WAL-02", 1/1.5, "3/9"))
     pages.append(page_plate('sciana_przednia', "ŚCIANA PRZEDNIA OBUDOWY", "SCP-03",
                             0, 2, 1, 0.5, (135, 195), "Żeliwo EN-GJL-200",
                             face_label="WIDOK Z PRZODU", side_label="WIDOK Z BOKU",
-                            side='right', sheet_no="3/8"))
+                            side='right', sheet_no="4/9"))
     pages.append(page_plate('sciana_boczna', "ŚCIANA BOCZNA OBUDOWY", "SCB-04",
                             1, 2, 0, 0.6, (135, 195), "Żeliwo EN-GJL-200",
                             face_label="WIDOK Z BOKU", side_label="WIDOK Z PRZODU",
-                            side='right', sheet_no="4/8"))
+                            side='right', sheet_no="5/9"))
     pages.append(page_plate('podstawa', "PODSTAWA OBUDOWY", "POD-05",
                             0, 1, 2, 0.5, (140, 200), "Żeliwo EN-GJL-200",
                             face_label="WIDOK Z GÓRY", side_label="WIDOK Z PRZODU",
-                            side='below', sheet_no="5/8"))
+                            side='below', sheet_no="6/9"))
     pages.append(page_plate('pokrywa', "GÓRNA CZĘŚĆ OBUDOWY (pokrywa)", "GOR-06",
                             0, 1, 2, 0.5, (140, 200), "Żeliwo EN-GJL-200",
                             face_label="WIDOK Z GÓRY", side_label="WIDOK Z PRZODU",
-                            side='below', sheet_no="6/8"))
-    pages.append(page_gear('zebatka2', "KOŁO ZĘBATE 2 (z=37)", "KZ-07", 0.7, "7/8", 4, 37))
-    pages.append(page_key('klin', "WPUST 16x10 (PN-70/M-85005)", "WPU-08", 2.2, "8/8"))
+                            side='below', sheet_no="7/9"))
+    pages.append(page_gear('zebatka2', "KOŁO ZĘBATE 2 (z=37)", "KZ-07", 0.7, "8/9", 4, 37))
+    pages.append(page_key('klin', "WPUST 16x10 (PN-70/M-85005)", "WPU-08", 2.2, "9/9"))
 
     base = "/home/user/claude/rysunki/"
     fnames = ["01_walek1.pdf", "02_walek2.pdf", "03_sciana_przednia.pdf",
