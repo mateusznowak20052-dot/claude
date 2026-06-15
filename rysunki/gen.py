@@ -339,13 +339,19 @@ def build():
     # Gorna czesc obudowy
     pages.append(page_gorna(6))
 
-    with PdfPages("/home/user/claude/rysunki/przekladnia_6_czesci.pdf") as pdf:
+    base = "/home/user/claude/rysunki/"
+    with PdfPages(base + "przekladnia_6_czesci.pdf") as pdf:
         for sh in pages:
             pdf.savefig(sh.fig)
-    # zapisz tez podglady PNG
+    # osobne pliki PDF dla kazdej czesci
+    fnames = ["1_walek_1.pdf", "2_sciana_przednia.pdf", "3_wpust_16x10.pdf",
+              "4_walek_2.pdf", "5_podstawa.pdf", "6_gorna_czesc_obudowy.pdf"]
+    for sh, fn in zip(pages, fnames):
+        sh.fig.savefig(base + fn)
+    # podglady PNG
     for i, sh in enumerate(pages, 1):
-        sh.save(f"/home/user/claude/rysunki/preview_{i}.png")
-    print("OK - zapisano PDF i podglady")
+        sh.save(base + f"preview_{i}.png")
+    print("OK - zapisano PDF zbiorczy, 6 osobnych PDF i podglady")
 
 
 if __name__ == "__main__":
